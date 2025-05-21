@@ -1,0 +1,227 @@
+read https://hackmd.io/@e201o3jKTT6IRzMwsvEDyA/BkY1fgcxeg
+conetent like following:
+
+CreatorDB Backend Engineer Interview Test
+1. Algorithm - Fill in Missing Daily Metrics
+You are working on a social media analytics platform. The system provides an API that returns a creator’s recent metric data. The API returns at most 7 metric entries and at least 1 metric entry, sorted in ascending order by date. However, the entries might not cover 7 consecutive days due to missing data in the database.
+
+Your task is to implement a function:
+fillMissingMetrics(data: Metric[]): Metric[] that fills in the missing days so that the result contains exactly 7 days of data, from 6 days ago up to today.
+
+🧾 Input
+data: an array of up to 7 Metric objects, sorted by date (ascending):
+type Metric = {
+  date: number; // UTC timestamp at midnight
+  averageLikesCount: number;
+  followersCount: number;
+  averageEngagementRate: number;
+};
+The function should generate entries for the date range:
+[today - 6d, ..., today]
+where "today" is the current date at midnight UTC.
+
+(i.e., new Date().setUTCHours(0, 0, 0, 0))
+✅ Fill-in Logic
+For each missing day:
+
+Look for the nearest available date (this can be from either the past or future).
+
+If two dates are equally distant, prefer the older date (i.e., the earlier date).
+
+Fill the missing days by using the nearest date according to the rules above.
+
+Return a list of exactly 7 metrics, one for each day in the target date range, sorted in ascending order.
+
+📘 Example Input
+const example1 = [
+  {
+    date: 1738368000000,           // -11d
+    averageLikesCount: 100,
+    followersCount: 200,
+    averageEngagementRate: 0.01
+  },
+  {
+    date: 1738540800000,           // -9d
+    averageLikesCount: 105,
+    followersCount: 202,
+    averageEngagementRate: 0.012
+  },
+  {
+    date: 1738713600000,           // -7d
+    averageLikesCount: 110,
+    followersCount: 205,
+    averageEngagementRate: 0.015
+  },
+  {
+    date: 1738800000000,           // -6d
+    averageLikesCount: 120,
+    followersCount: 208,
+    averageEngagementRate: 0.02
+  },
+  {
+    date: 1739068800000,           // -3d
+    averageLikesCount: 130,
+    followersCount: 210,
+    averageEngagementRate: 0.022
+  },
+  {
+    date: 1739155200000,           // -2d
+    averageLikesCount: 140,
+    followersCount: 215,
+    averageEngagementRate: 0.023
+  },
+  {
+    date: 1739328000000,           // 0d
+    averageLikesCount: 150,
+    followersCount: 220,
+    averageEngagementRate: 0.025
+  },
+];
+
+// Today is represented by 1739328000000 in this example     
+const example2 = [
+  {
+    date: 1738886400000,           // -5d
+    averageLikesCount: 120,
+    followersCount: 208,
+    averageEngagementRate: 0.02
+  },
+  {
+    date: 1739328000000,           // 0d
+    averageLikesCount: 150,
+    followersCount: 220,
+    averageEngagementRate: 0.025
+  },
+];
+
+// Today is represented by 1739328000000 in this example     
+🎯 Expected Output
+An array of 7 metrics for dates:
+
+[-6d, -5d, -4d, -3d, -2d, -1d, 0d]
+Example Output from example1:
+[
+  { date: ..., data from -6d },  // -6d → original
+  { date: ..., data from -6d },  // -5d → fallback to -6d
+  { date: ..., data from -3d },  // -4d → fallback to -3d
+  { date: ..., data from -3d },  // -3d → original
+  { date: ..., data from -2d },  // -2d → original
+  { date: ..., data from -2d },  // -1d → fallback to -2d
+  { date: ..., data from  0d }   //  0d → original
+]
+Example Output from example2:
+[
+  { date: ..., data from -5d }, // -6d → fallback forward to -5d
+  { date: ..., data from -5d }, // -5d → original
+  { date: ..., data from -5d }, // -4d → fallback to -5d
+  { date: ..., data from -5d }, // -3d → fallback to -5d
+  { date: ..., data from -5d }, // -2d → fallback to -5d (equal distance to 0d, prefer older)
+  { date: ..., data from  0d }, // -1d → fallback to 0d
+  { date: ..., data from  0d }, //  0d → original
+]
+📝 Function Skeleton
+/**
+ * Fills in missing metrics to ensure complete data for the last 7 days
+ * 
+ * @param data - Array of metric objects sorted by date in ascending order
+ * @returns Array of metrics with exactly 7 days of data (from 6 days ago to today)
+ */
+function fillMissingMetrics(data: Metric[]): Metric[] {
+  // Your implementation here
+}
+🌟 Bonus
+Write clean, modular, and readable code.
+Optimize for performance.
+Add unit tests if possible.
+Make the function configurable to support more than 7 days (e.g., 14 or 30).
+2. Debug
+Help me to debug this code, and explan why
+
+async function getPage(url) {
+  var response = await fetch(url);
+  var data = await response.text();
+  return data;
+}
+
+async function getYoutubeData(youtubeIds) {
+  var promises = [];
+  for (var i = 0; i < youtubeIds.length; i++) {
+    var promise = new Promise(async (resolve, reject) => {
+      try {
+        var channelURL = `https://www.youtube.com/${youtubeIds[i]}`;
+        var channelPage = await getPage(channelURL);
+
+        var videosURL = `https://www.youtube.com/${youtubeIds[i]}/videos`;
+        var videosPage = await getPage(videosURL);
+
+        resolve({ channelPage, videosPage });
+      } catch (e) {
+        reject(e);
+      }
+    });
+    promises.push(promise);
+  }
+  var results = await Promise.all(promises);
+  return results;
+}
+
+var youtubeIds = ['@darbbq', '@oojimateru', '@homemeat_clip'];
+getYoutubeData(youtubeIds);
+3. Database Schema Design
+Scenario:
+You need to design a database schema for a headless API service with quota counting. The system will track API usage, manage user credits, and provide usage analytics.
+
+Requirements
+
+Credit Management: Track prepurchased credits and deduct them based on API endpoint usage
+Usage Tracking: Record detailed API call information for auditing and troubleshooting
+Historical Record Keeping: Store monthly usage data for analytics and reporting
+Monthly Analysis: Enable users to view their API usage aggregated by month
+Endpoint-Specific Quotas: Different API endpoints have different credit costs
+const enum APIEndpoint {
+  // creator
+  SubmitCreators = '/submit-creators',
+  DiscoverCreators = '/discover-creators',
+  GetCreatorInfo = '/get-creator-info',
+  
+  // keyword
+  GetTopicItems = '/get-topic-items',
+  GetNicheItems = '/get-niche-items',
+  GetHashtagItems = '/get-hashtag-items',
+  
+  // Add other endpoints as needed
+}
+
+const apiQuotaMap: Record<APIEndpoint, number> = {
+  // creator
+  [APIEndpoint.SubmitCreators]: 1,
+  [APIEndpoint.DiscoverCreators]: 2, 
+  [APIEndpoint.GetCreatorInfo]: 3,
+  
+  // keyword
+  [APIEndpoint.GetTopicItems]: 1,
+  [APIEndpoint.GetNicheItems]: 1,
+  [APIEndpoint.GetHashtagItems]: 1,
+  
+  // Add other mappings as needed
+} as const
+Environment Constraints:
+
+Database: Choose either NoSQL (MongoDB/Firestore) OR SQL (MySQL/PostgreSQL) based on your assessment
+Integration: Service is already in use and will be extended with this new feature (maintain backward compatibility)
+Performance: Design must be scalable and extendable to handle growing usage
+Efficiency: Schema should minimize processing time and operational costs
+Documentation: Schema should be readable and easily explainable to non-technical stakeholders
+Task:
+Complete the UserTableScheme and any other necessary types by designing appropriate database schema structures to fulfill the requirements above. You need to implement the apiUsageHistory field and any additional tables or structures needed.
+
+// design database storage scheme
+type UserTableScheme = 
+{
+	userId: string;
+	prepurchasedCredit: number;
+	
+	// implement here
+	apiUsageHistory: ???
+	...
+}
