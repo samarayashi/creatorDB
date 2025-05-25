@@ -68,7 +68,8 @@ function isValidYoutubePage(content: string): boolean {
 
 ### Run Examples
 ```bash
-npm run task2:demo        # Complete example (with real network requests)
+npm run demo:ori          # problematic code 
+npm run task2:demo:new    # Fixed version
 npm run task2:test        # Unit tests
 ```
 

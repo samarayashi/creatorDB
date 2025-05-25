@@ -42,6 +42,7 @@ npm run task1:test          # Run tests
 npm run task1:demo          # Run demonstration
 
 # Task 2 - Debug
+npm run task2:demo:ori      # Run original problematic version
 npm run task2:demo:new      # Run fixed version
-npm run task2:demo:original # Run original problematic version
+npm run task2:test
 ```
