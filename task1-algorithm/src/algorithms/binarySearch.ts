@@ -1,5 +1,5 @@
-import { Metric } from '../types';
-import { generateTargetDates } from '../utils';
+import { Metric } from '../shared/types';
+import { generateTargetDates } from '../shared/utils';
 
 /**
  * 二分查找：尋找陣列中第一個嚴格大於 target 的索引

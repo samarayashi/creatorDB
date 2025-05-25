@@ -1,5 +1,5 @@
-import { Metric } from '../types';
-import { generateTargetDates } from '../utils';
+import { Metric } from '../shared/types';
+import { generateTargetDates } from '../shared/utils';
 
 /**
  * 使用「同向雙指針」線性掃描，填補缺失的 metrics

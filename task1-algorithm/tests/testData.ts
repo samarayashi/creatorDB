@@ -1,4 +1,4 @@
-import { Metric } from '../src/types';
+import { Metric } from '../src/shared/types';
 
 // 統一的基準日期 - 與測試檔案中的 MOCK_TODAY 保持一致
 export const MOCK_TODAY = 1739318400000; // 2025-02-12 00:00:00 UTC (修正為真正的零點)

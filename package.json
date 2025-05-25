@@ -1,18 +1,18 @@
 {
-  "name": "fill-missing-metrics",
+  "name": "creatordb-interview-tasks",
   "version": "1.0.0",
-  "description": "高效能的每日指標填補演算法，支援二分查找和雙指針兩種策略",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "description": "CreatorDB Backend Engineer Interview Test - 包含演算法、除錯、資料庫設計三個任務",
+  "main": "task1-algorithm/dist/index.js",
+  "types": "task1-algorithm/dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "dev": "ts-node src/index.ts",
-    "lint": "eslint src tests --ext .ts",
-    "format": "prettier --write src tests",
-    "clean": "rm -rf dist"
+    "build": "cd task1-algorithm && tsc",
+    "test": "cd task1-algorithm && jest",
+    "test:watch": "cd task1-algorithm && jest --watch",
+    "test:coverage": "cd task1-algorithm && jest --coverage",
+    "dev": "cd task1-algorithm && ts-node src/index.ts",
+    "lint": "cd task1-algorithm && eslint src tests --ext .ts",
+    "format": "cd task1-algorithm && prettier --write src tests",
+    "clean": "rm -rf task1-algorithm/dist"
   },
   "keywords": [
     "algorithm",
@@ -20,7 +20,9 @@
     "data-processing",
     "binary-search",
     "two-pointers",
-    "typescript"
+    "typescript",
+    "interview",
+    "creatordb"
   ],
   "author": "CreatorDB Team",
   "license": "MIT",
@@ -39,17 +41,18 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
-    "roots": ["<rootDir>/src", "<rootDir>/tests"],
+    "roots": ["<rootDir>/task1-algorithm/src", "<rootDir>/task1-algorithm/tests"],
     "testMatch": ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
     "collectCoverageFrom": [
-      "src/**/*.ts",
-      "!src/**/*.d.ts"
+      "task1-algorithm/src/**/*.ts",
+      "!task1-algorithm/src/**/*.d.ts"
     ],
-    "coverageDirectory": "coverage",
+    "coverageDirectory": "task1-algorithm/coverage",
     "coverageReporters": ["text", "lcov", "html"]
   },
   "files": [
-    "dist/**/*",
+    "task1-algorithm/dist/**/*",
+    "task1-algorithm/README.md",
     "README.md"
   ]
 } 

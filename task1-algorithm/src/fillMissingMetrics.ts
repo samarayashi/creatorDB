@@ -1,4 +1,4 @@
-import { Metric } from './types';
+import { Metric } from './shared/types';
 import { fillMissingMetricsBinary } from './algorithms/binarySearch';
 import { fillMissingMetricsTwoPointers } from './algorithms/twoPointers';
 

@@ -35,7 +35,7 @@ const exampleData: Metric[] = [
 ];
 
 function formatDate(timestamp: number): string {
-  return new Date(timestamp).toISOString().split('T')[0];
+  return new Date(timestamp).toISOString().split('T')[0] || '';
 }
 
 function printMetrics(metrics: Metric[], title: string) {
