@@ -3,7 +3,7 @@
  * Tests parallelization and error handling of the fixed version
  */
 
-import { getYoutubeData, isValidYoutubePage } from '../src/fixed';
+import { getYoutubeData } from '../src/fixed';
 
 // Mock fetch to avoid actual network requests
 global.fetch = jest.fn();

@@ -251,32 +251,64 @@ describe('fillMissingMetrics', () => {
   });
 
   describe('Algorithm selection tests', () => {
-    test('small datasets should choose binary search', () => {
-      expect(selectAlgorithm(5, 7)).toBe('binary');
+    test('small datasets should choose appropriate algorithm', () => {
+      // For selectAlgorithm(3, 7) - 3 existing records, fill to 7 days:
+      // Binary: 7 * log2(3) ≈ 7 * 1.58 ≈ 11.06
+      // Two-pointer: 7 + 3 = 10
+      // 10 < 11.06, so should choose twoPointers
+      expect(selectAlgorithm(3, 7)).toBe('twoPointers');
       
-      // 12 < 16.24, so should choose twoPointers
-      expect(selectAlgorithm(10, 7)).toBe('binary');
+      // For selectAlgorithm(5, 14) - 5 existing records, fill to 14 days:
+      // Binary: 14 * log2(5) ≈ 14 * 2.32 ≈ 32.48
+      // Two-pointer: 14 + 5 = 19
+      // 19 < 32.48, so should choose twoPointers
+      expect(selectAlgorithm(5, 14)).toBe('twoPointers');
       
-      // 17 < 23.24, so should choose twoPointers  
-      expect(selectAlgorithm(15, 7)).toBe('binary');
+      // For selectAlgorithm(2, 30) - 2 existing records, fill to 30 days:
+      // Binary: 30 * log2(2) ≈ 30 * 1 = 30
+      // Two-pointer: 30 + 2 = 32
+      // 30 < 32, so should choose binary
+      expect(selectAlgorithm(2, 30)).toBe('binary');
     });
 
-    test('large datasets should choose two pointers', () => {
-      expect(selectAlgorithm(1000, 365)).toBe('twoPointers');
+    test('larger datasets should choose appropriate algorithm', () => {
+      // For selectAlgorithm(50, 365) - 50 existing records, fill to 365 days:
+      // Binary: 365 * log2(50) ≈ 365 * 5.64 ≈ 2058.6
+      // Two-pointer: 365 + 50 = 415
+      // 415 < 2058.6, so should choose twoPointers
+      expect(selectAlgorithm(50, 365)).toBe('twoPointers');
       
-      // 1365 < 3639, so should choose twoPointers
-      expect(selectAlgorithm(10000, 30)).toBe('twoPointers');
+      // For selectAlgorithm(100, 365) - 100 existing records, fill to 365 days:
+      // Binary: 365 * log2(100) ≈ 365 * 6.64 ≈ 2423.6
+      // Two-pointer: 365 + 100 = 465
+      // 465 < 2423.6, so should choose twoPointers
+      expect(selectAlgorithm(100, 365)).toBe('twoPointers');
       
-      // 398.7 < 10030, so should choose binary
-      expect(selectAlgorithm(100, 30)).toBe('binary');
+      // For selectAlgorithm(10, 365) - 10 existing records, fill to 365 days:
+      // Binary: 365 * log2(10) ≈ 365 * 3.32 ≈ 1211.8
+      // Two-pointer: 365 + 10 = 375
+      // 375 < 1211.8, so should choose twoPointers
+      expect(selectAlgorithm(10, 365)).toBe('twoPointers');
     });
 
     test('edge cases for algorithm selection', () => {
-      expect(selectAlgorithm(1, 1)).toBe('binary');
+      // For selectAlgorithm(1, 1) - 1 existing record, fill to 1 day:
+      // Binary: 1 * log2(1) = 1 * 0 = 0
+      // Two-pointer: 1 + 1 = 2
       // 0 < 2, so should choose binary
+      expect(selectAlgorithm(1, 1)).toBe('binary');
       
-      expect(selectAlgorithm(1000, 1)).toBe('binary');
-      // 0 < 1001, so should choose binary
+      // For selectAlgorithm(1, 7) - 1 existing record, fill to 7 days:
+      // Binary: 7 * log2(1) = 7 * 0 = 0
+      // Two-pointer: 7 + 1 = 8
+      // 0 < 8, so should choose binary
+      expect(selectAlgorithm(1, 7)).toBe('binary');
+      
+      // For selectAlgorithm(1, 30) - 1 existing record, fill to 30 days:
+      // Binary: 30 * log2(1) = 30 * 0 = 0
+      // Two-pointer: 30 + 1 = 31
+      // 0 < 31, so should choose binary
+      expect(selectAlgorithm(1, 30)).toBe('binary');
     });
   });
 
