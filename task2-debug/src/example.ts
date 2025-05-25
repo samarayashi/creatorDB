@@ -1,130 +1,130 @@
 /**
- * 執行示例 - 展示修正版本的使用
- * 包含真實網路請求和模擬錯誤情況的示例
+ * Execution Examples - Demonstrates usage of the fixed version
+ * Includes real network requests and error simulation examples
  */
 
 import { getYoutubeData } from './fixed';
 
-console.log('🎯 Task 2 - JavaScript 非同步程式碼 Debug 示例');
+console.log('🎯 Task 2 - JavaScript Async Code Debug Examples');
 console.log('=' .repeat(60));
 
-// 示例 1：正常執行（真實網路請求）
+// Example 1: Normal execution (real network requests)
 async function runRealExample(): Promise<void> {
-  console.log('\n📡 示例 1: 真實網路請求');
+  console.log('\n📡 Example 1: Real Network Requests');
   console.log('-' .repeat(40));
   
   const youtubeIds = ['@darbbq', '@oojimateru', '@homemeat_clip'];
   
   try {
-    console.log('🔧 執行修正版本（並行化 + 容錯）...');
-    console.log('📋 處理的 YouTube IDs:', youtubeIds);
+    console.log('🔧 Running fixed version (parallelized + error handling)...');
+    console.log('📋 Processing YouTube IDs:', youtubeIds);
     
     const startTime = Date.now();
     const results = await getYoutubeData(youtubeIds);
     const endTime = Date.now();
     
-    console.log('✅ 處理完成，結果如下:');
+    console.log('✅ Processing complete, results:');
     results.forEach((result) => {
       if (result.error) {
-        console.log(`❌ ${result.id}: 失敗 - ${result.error}`);
+        console.log(`❌ ${result.id}: Failed - ${result.error}`);
       } else {
-        console.log(`✅ ${result.id}: 成功`);
-        console.log(`   - 頻道頁面長度: ${result.channelPage!.length.toLocaleString()} 字元`);
-        console.log(`   - 影片頁面長度: ${result.videosPage!.length.toLocaleString()} 字元`);
+        console.log(`✅ ${result.id}: Success`);
+        console.log(`   - Channel page length: ${result.channelPage!.length.toLocaleString()} chars`);
+        console.log(`   - Videos page length: ${result.videosPage!.length.toLocaleString()} chars`);
       }
     });
 
-    // 統計結果
+    // Statistics
     const successCount = results.filter(r => !r.error).length;
     const failCount = results.filter(r => r.error).length;
     const totalTime = endTime - startTime;
     
-    console.log(`\n📊 統計:`);
-    console.log(`   - 成功: ${successCount} 個`);
-    console.log(`   - 失敗: ${failCount} 個`);
-    console.log(`   - 總耗時: ${totalTime}ms`);
-    console.log(`   - 平均每個 ID: ${Math.round(totalTime / youtubeIds.length)}ms`);
+    console.log(`\n📊 Statistics:`);
+    console.log(`   - Success: ${successCount} IDs`);
+    console.log(`   - Failed: ${failCount} IDs`);
+    console.log(`   - Total time: ${totalTime}ms`);
+    console.log(`   - Average per ID: ${Math.round(totalTime / youtubeIds.length)}ms`);
     
   } catch (error) {
-    console.error('❌ 執行失敗:', error);
+    console.error('❌ Execution failed:', error);
   }
 }
 
-// 示例 2：模擬錯誤情況（包含無效的 YouTube ID）
+// Example 2: Error handling test (includes invalid YouTube IDs)
 async function runErrorExample(): Promise<void> {
-  console.log('\n🚨 示例 2: 容錯機制測試');
+  console.log('\n🚨 Example 2: Error Handling Test');
   console.log('-' .repeat(40));
   
-  // 混合有效和無效的 YouTube ID
+  // Mix of valid and invalid YouTube IDs
   const mixedIds = ['@darbbq', 'invalid_channel_12345', '@oojimateru'];
   
   try {
-    console.log('🔧 測試容錯機制...');
-    console.log('📋 處理的 YouTube IDs（包含無效 ID）:', mixedIds);
+    console.log('🔧 Testing error handling...');
+    console.log('📋 Processing YouTube IDs (including invalid):', mixedIds);
     
     const results = await getYoutubeData(mixedIds);
     
-    console.log('✅ 處理完成，容錯機制運作正常:');
+    console.log('✅ Processing complete, error handling working:');
     results.forEach((result) => {
       if (result.error) {
-        console.log(`❌ ${result.id}: 失敗 - ${result.error}`);
+        console.log(`❌ ${result.id}: Failed - ${result.error}`);
       } else {
-        console.log(`✅ ${result.id}: 成功`);
-        console.log(`   - 頻道頁面長度: ${result.channelPage!.length.toLocaleString()} 字元`);
-        console.log(`   - 影片頁面長度: ${result.videosPage!.length.toLocaleString()} 字元`);
+        console.log(`✅ ${result.id}: Success`);
+        console.log(`   - Channel page length: ${result.channelPage!.length.toLocaleString()} chars`);
+        console.log(`   - Videos page length: ${result.videosPage!.length.toLocaleString()} chars`);
       }
     });
 
     const successCount = results.filter(r => !r.error).length;
     const failCount = results.filter(r => r.error).length;
     
-    console.log(`\n📊 容錯測試結果:`);
-    console.log(`   - 成功: ${successCount} 個（部分失敗不影響其他請求）`);
-    console.log(`   - 失敗: ${failCount} 個（錯誤被正確捕獲和處理）`);
+    console.log(`\n📊 Error handling test results:`);
+    console.log(`   - Success: ${successCount} IDs (partial failures don't affect others)`);
+    console.log(`   - Failed: ${failCount} IDs (errors properly caught and handled)`);
     
   } catch (error) {
-    console.error('❌ 執行失敗:', error);
+    console.error('❌ Execution failed:', error);
   }
 }
 
-// 示例 3：空陣列測試
+// Example 3: Empty array test
 async function runEmptyArrayExample(): Promise<void> {
-  console.log('\n📝 示例 3: 邊界條件測試');
+  console.log('\n📝 Example 3: Edge Case Test');
   console.log('-' .repeat(40));
   
   try {
-    console.log('🔧 測試空陣列處理...');
+    console.log('🔧 Testing empty array handling...');
     const results = await getYoutubeData([]);
-    console.log('✅ 空陣列處理正常，結果:', results);
-    console.log(`📊 結果長度: ${results.length}`);
+    console.log('✅ Empty array handled correctly, result:', results);
+    console.log(`📊 Result length: ${results.length}`);
     
   } catch (error) {
-    console.error('❌ 空陣列測試失敗:', error);
+    console.error('❌ Empty array test failed:', error);
   }
 }
 
-// 主執行函式
+// Main execution function
 async function main(): Promise<void> {
   try {
-    // 執行所有示例
+    // Run all examples
     await runRealExample();
     await runErrorExample();
     await runEmptyArrayExample();
     
-    console.log('\n🎉 所有示例執行完成！');
-    console.log('\n💡 重點展示:');
-    console.log('   ✅ 修正了 var 作用域問題');
-    console.log('   ✅ 實現了並行化處理');
-    console.log('   ✅ 加入了容錯機制');
-    console.log('   ✅ 加入了 404 錯誤檢測');
-    console.log('   ✅ 提供了清晰的錯誤追蹤');
+    console.log('\n🎉 All examples completed!');
+    console.log('\n💡 Key improvements demonstrated:');
+    console.log('   ✅ Fixed var scope issue');
+    console.log('   ✅ Implemented parallelization');
+    console.log('   ✅ Added error handling');
+    console.log('   ✅ Added 404 error detection');
+    console.log('   ✅ Provided clear error tracking');
     
   } catch (error) {
-    console.error('❌ 主程式執行失敗:', error);
+    console.error('❌ Main execution failed:', error);
   }
 }
 
-// 執行主函式
+// Execute main function
 if (require.main === module) {
   main().catch(console.error);
 }

@@ -1,57 +1,59 @@
 /**
- * Task 2 Debug 測試
- * 測試修正版本的並行化和容錯機制
+ * Task 2 Debug Tests
+ * Tests parallelization and error handling of the fixed version
  */
 
 import { getYoutubeData, isValidYoutubePage } from '../src/fixed';
 
-// Mock fetch 來避免實際網路請求
+// Mock fetch to avoid actual network requests
 global.fetch = jest.fn();
 
-describe('Task 2 - Debug 修正測試（並行化 + 容錯）', () => {
+describe('Task 2 - Debug Fix Tests (Parallelization + Error Handling)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test('修正版本應該正確處理 YouTube IDs', async () => {
-    // 模擬 fetch 回應 - 大型有效頁面
-    const validPageContent = '<html>' + 'x'.repeat(50000) + '</html>'; // 大於 10000 字元
+  test('Fixed version should correctly handle YouTube IDs', async () => {
+    // Mock fetch responses - large valid pages
+    const validPageContent = '<html>' + 'x'.repeat(50000) + '</html>'; 
+    
     (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue({
-      text: () => Promise.resolve(validPageContent)
+      text: async () => validPageContent,
     } as Response);
 
     const youtubeIds = ['@test1', '@test2'];
     const results = await getYoutubeData(youtubeIds);
 
-    // 驗證結果
+    // Verify results
     expect(results).toHaveLength(2);
-    expect(results[0]!.id).toBe('@test1');
-    expect(results[0]!.error).toBeUndefined();
-    expect(results[0]!.channelPage).toBeDefined();
-    expect(results[0]!.videosPage).toBeDefined();
-    
-    expect(results[1]!.id).toBe('@test2');
-    expect(results[1]!.error).toBeUndefined();
-    expect(results[1]!.channelPage).toBeDefined();
-    expect(results[1]!.videosPage).toBeDefined();
+    expect(results[0]).toEqual({
+      id: '@test1',
+      channelPage: validPageContent,
+      videosPage: validPageContent,
+    });
+    expect(results[1]).toEqual({
+      id: '@test2',
+      channelPage: validPageContent,
+      videosPage: validPageContent,
+    });
 
-    // 驗證 fetch 被正確呼叫（並行化）
-    expect(fetch).toHaveBeenCalledTimes(4); // 2 個 ID × 2 個頁面
+    // Verify fetch was called correctly (parallelization)
+    expect(fetch).toHaveBeenCalledTimes(4); // 2 IDs × 2 pages
     expect(fetch).toHaveBeenCalledWith('https://www.youtube.com/@test1');
     expect(fetch).toHaveBeenCalledWith('https://www.youtube.com/@test1/videos');
     expect(fetch).toHaveBeenCalledWith('https://www.youtube.com/@test2');
     expect(fetch).toHaveBeenCalledWith('https://www.youtube.com/@test2/videos');
   });
 
-  test('應該處理空陣列', async () => {
+  test('Should handle empty arrays', async () => {
     const results = await getYoutubeData([]);
-    expect(results).toHaveLength(0);
+    expect(results).toEqual([]);
   });
 
-  test('應該正確處理部分失敗的情況（容錯機制）', async () => {
+  test('Should correctly handle partial failures (error handling)', async () => {
     const validPageContent = '<html>' + 'x'.repeat(50000) + '</html>';
     
-    // 模擬部分請求失敗
+    // Mock partial request failures
     (fetch as jest.MockedFunction<typeof fetch>)
       .mockImplementation((url) => {
         const urlString = url.toString();
@@ -65,24 +67,27 @@ describe('Task 2 - Debug 修正測試（並行化 + 容錯）', () => {
     const youtubeIds = ['@success', '@fail'];
     const results = await getYoutubeData(youtubeIds);
 
-    // 驗證結果
+    // Verify results
     expect(results).toHaveLength(2);
     
-    // 第一個應該成功
-    expect(results[0]!.id).toBe('@success');
-    expect(results[0]!.error).toBeUndefined();
-    expect(results[0]!.channelPage).toBeDefined();
-    expect(results[0]!.videosPage).toBeDefined();
+    // First should be successful
+    expect(results[0]).toEqual({
+      id: '@success',
+      channelPage: validPageContent,
+      videosPage: validPageContent,
+    });
     
-    // 第二個應該失敗但不影響整體
-    expect(results[1]!.id).toBe('@fail');
-    expect(results[1]!.error).toBeDefined();
-    expect(results[1]!.channelPage).toBeUndefined();
-    expect(results[1]!.videosPage).toBeUndefined();
+    // Second should be failed but not affect overall
+    expect(results[1]).toEqual({
+      id: '@fail',
+      error: 'Network error',
+      channelPage: undefined,
+      videosPage: undefined,
+    });
   });
 
-  test('應該正確識別 404 錯誤頁面', async () => {
-    // 模擬 404 錯誤頁面
+  test('Should correctly identify 404 error pages', async () => {
+    // Mock 404 error page
     const error404Page = '<html><title>404 Not Found</title><body>Page not found</body></html>';
     (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue({
       text: () => Promise.resolve(error404Page)
@@ -91,22 +96,24 @@ describe('Task 2 - Debug 修正測試（並行化 + 容錯）', () => {
     const youtubeIds = ['invalid_channel'];
     const results = await getYoutubeData(youtubeIds);
 
-    // 驗證結果
+    // Verify results
     expect(results).toHaveLength(1);
-    expect(results[0]!.id).toBe('invalid_channel');
-    expect(results[0]!.error).toBe('Invalid YouTube channel (404 Not Found)');
-    expect(results[0]!.channelPage).toBeUndefined();
-    expect(results[0]!.videosPage).toBeUndefined();
+    expect(results[0]).toEqual({
+      id: 'invalid_channel',
+      error: 'Invalid YouTube channel (404 Not Found)',
+      channelPage: undefined,
+      videosPage: undefined,
+    });
   });
 
-  test('應該處理所有請求都失敗的情況', async () => {
-    // 模擬所有請求都失敗
+  test('Should handle all requests failing', async () => {
+    // Mock all requests failing
     (fetch as jest.MockedFunction<typeof fetch>).mockRejectedValue(new Error('Network error'));
 
     const youtubeIds = ['@fail1', '@fail2'];
     const results = await getYoutubeData(youtubeIds);
 
-    // 驗證結果
+    // Verify results
     expect(results).toHaveLength(2);
     results.forEach((result, index) => {
       expect(result.id).toBe(youtubeIds[index]);

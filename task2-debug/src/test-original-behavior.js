@@ -1,60 +1,62 @@
-// 測試原始程式碼的實際行為
-async function getPage(url) {
-  console.log(`📡 正在請求: ${url}`);
-  // 模擬網路請求延遲
-  return new Promise(resolve => {
+// Test original code behavior
+function mockGetPage(url) {
+  console.log(`📡 Requesting: ${url}`);
+  // Simulate network request delay
+  return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(`頁面內容來自: ${url}`);
-    }, 200); // 增加延遲以更清楚看到時序
+      resolve(`Page content from: ${url}`);
+    }, 200); // Add delay to clearly see timing
   });
 }
 
 async function getYoutubeData(youtubeIds) {
-  console.log('🚀 開始執行 getYoutubeData');
-  console.log(`📋 youtubeIds.length = ${youtubeIds.length}`);
+  console.log('🚀 Starting getYoutubeData execution');
   
-  var promises = [];
+  const promises = [];
   
   for (var i = 0; i < youtubeIds.length; i++) {
-    console.log(`🔄 迴圈開始: i = ${i}, youtubeIds[${i}] = ${youtubeIds[i]}`);
+    console.log(`🔄 Loop start: i = ${i}, youtubeIds[${i}] = ${youtubeIds[i]}`);
     
-    var promise = new Promise(async (resolve, reject) => {
-      console.log(`⚡ Promise 立即開始執行: i = ${i}, youtubeIds[${i}] = ${youtubeIds[i]}`);
+    promises.push(new Promise(async (resolve) => {
+      console.log(`⚡ Promise starts immediately: i = ${i}, youtubeIds[${i}] = ${youtubeIds[i]}`);
       
-      try {
-        var channelURL = `https://www.youtube.com/${youtubeIds[i]}`;
-        console.log(`🎯 準備請求 channel: ${channelURL}`);
-        var channelPage = await getPage(channelURL);
-        
-        console.log(`⏰ channel 請求完成，現在 i = ${i}, youtubeIds[${i}] = ${youtubeIds[i]}`);
-        var videosURL = `https://www.youtube.com/${youtubeIds[i]}/videos`;
-        console.log(`🎯 準備請求 videos: ${videosURL}`);
-        var videosPage = await getPage(videosURL);
-
-        resolve({ channelPage, videosPage });
-      } catch (e) {
-        reject(e);
-      }
-    });
-    promises.push(promise);
-    console.log(`✅ Promise 已加入陣列，繼續下一輪迴圈`);
+      const channelURL = `https://www.youtube.com/${youtubeIds[i]}`;
+      console.log(`🎯 Preparing channel request: ${channelURL}`);
+      const channelPage = await mockGetPage(channelURL);
+      
+      console.log(`⏰ Channel request complete, now i = ${i}, youtubeIds[${i}] = ${youtubeIds[i]}`);
+      const videosURL = `https://www.youtube.com/${youtubeIds[i]}/videos`;
+      console.log(`🎯 Preparing videos request: ${videosURL}`);
+      const videosPage = await mockGetPage(videosURL);
+      
+      resolve({
+        id: youtubeIds[i],
+        channelPage,
+        videosPage,
+      });
+    }));
+    
+    console.log(`✅ Promise added to array, continuing to next iteration`);
   }
   
-  console.log(`🏁 迴圈結束，最終 i = ${i}`);
-  console.log(`⏳ 等待所有 Promise 完成...`);
+  console.log(`🏁 Loop ended, final i = ${i}`);
+  console.log(`⏳ Waiting for all Promises to complete...`);
   
-  var results = await Promise.all(promises);
+  const results = await Promise.all(promises);
   return results;
 }
 
-// 測試
-console.log('🧪 開始測試原始程式碼行為');
-var youtubeIds = ['@darbbq', '@oojimateru', '@homemeat_clip'];
-getYoutubeData(youtubeIds).then(results => {
-  console.log('🎉 最終結果:', results.map(r => ({
-    channel: r.channelPage.substring(0, 50) + '...',
-    videos: r.videosPage.substring(0, 50) + '...'
-  })));
-}).catch(error => {
-  console.error('❌ 錯誤:', error);
-}); 
+// Test
+console.log('🧪 Starting original code behavior test');
+getYoutubeData(['@test1', '@test2', '@test3'])
+  .then(results => {
+    console.log('\n📊 Final results:');
+    results.forEach((result, index) => {
+      console.log(`Result ${index}:`, {
+        id: result.id,
+        channelURL: result.channelPage?.split(': ')[1] || 'undefined',
+        videosURL: result.videosPage?.split(': ')[1] || 'undefined'
+      });
+    });
+  })
+  .catch(console.error); 
