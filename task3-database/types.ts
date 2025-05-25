@@ -1,27 +1,34 @@
 /**
  * CreatorDB API Quota Management System
  * TypeScript Type Definitions
+ * 
+ * 設計理念：
+ * 1. 資料層：直接對應資料庫表格結構
+ * 2. 應用層：組合查詢結果，提供業務邏輯所需的完整資料結構
+ * 3. 服務層：定義操作介面和結果類型
  */
 
 // =====================================================
-// 作業要求的核心介面
+// 核心業務介面（作業要求）
 // =====================================================
 
 /**
  * 作業要求的 UserTableScheme 介面
- * 注意：apiUsageHistory 是透過查詢組裝的虛擬欄位，非實際 DB 欄位
+ * 設計思路：這是應用層的資料結構，apiUsageHistory 透過關聯查詢組裝
+ * 優勢：避免 users 表膨脹，保持查詢靈活性
  */
 export interface UserTableScheme {
   userId: string;
   prepurchasedCredit: number;
   createdAt: string;
   updatedAt: string;
-  /** 從 monthly_usage 表查詢組裝，非實際 DB 欄位 */
+  /** 從 monthly_usage 表查詢組裝的虛擬欄位，非實際 DB 欄位 */
   apiUsageHistory: MonthlyUsageSummary[];
 }
 
 /**
  * 月度使用摘要
+ * 設計思路：預計算的聚合資料，提升查詢效能
  */
 export interface MonthlyUsageSummary {
   month: string; // '2025-01'
@@ -31,19 +38,19 @@ export interface MonthlyUsageSummary {
 }
 
 // =====================================================
-// API 端點相關定義（與作業要求一致）
+// API 端點相關定義
 // =====================================================
 
 /**
  * API 端點枚舉（與作業要求完全一致）
  */
 export const enum APIEndpoint {
-  // creator
+  // creator endpoints
   SubmitCreators = '/submit-creators',
   DiscoverCreators = '/discover-creators',
   GetCreatorInfo = '/get-creator-info',
   
-  // keyword
+  // keyword endpoints
   GetTopicItems = '/get-topic-items',
   GetNicheItems = '/get-niche-items',
   GetHashtagItems = '/get-hashtag-items',
@@ -53,23 +60,24 @@ export const enum APIEndpoint {
  * API 配額對應表（與作業要求一致）
  */
 export const apiQuotaMap: Record<APIEndpoint, number> = {
-  // creator
+  // creator endpoints
   [APIEndpoint.SubmitCreators]: 1,
   [APIEndpoint.DiscoverCreators]: 2,
   [APIEndpoint.GetCreatorInfo]: 3,
   
-  // keyword
+  // keyword endpoints
   [APIEndpoint.GetTopicItems]: 1,
   [APIEndpoint.GetNicheItems]: 1,
   [APIEndpoint.GetHashtagItems]: 1,
 } as const;
 
 // =====================================================
-// 資料庫表格對應的 TypeScript 介面
+// 資料層介面（直接對應資料庫表格）
 // =====================================================
 
 /**
  * Users 表對應介面
+ * 設計思路：保持資料庫表結構的直接映射
  */
 export interface User {
   userId: string;
@@ -80,6 +88,7 @@ export interface User {
 
 /**
  * API Endpoints 表對應介面
+ * 設計思路：動態配置 API 成本，支援運營調整
  */
 export interface ApiEndpoint {
   endpoint: APIEndpoint;
@@ -92,6 +101,7 @@ export interface ApiEndpoint {
 
 /**
  * API Calls 表對應介面
+ * 設計思路：詳細記錄每次 API 呼叫，支援稽核和分析
  */
 export interface ApiCall {
   callId: string;
@@ -107,6 +117,7 @@ export interface ApiCall {
 
 /**
  * Monthly Usage 表對應介面
+ * 設計思路：預計算的月度統計，提升查詢效能
  */
 export interface MonthlyUsage {
   userId: string;
@@ -119,6 +130,7 @@ export interface MonthlyUsage {
 
 /**
  * Credit Transactions 表對應介面
+ * 設計思路：完整的點數異動軌跡，支援對帳和稽核
  */
 export interface CreditTransaction {
   txId: string;
@@ -142,11 +154,12 @@ export type CreditTransactionReason =
   | 'purchase';        // 購買
 
 // =====================================================
-// Service 層介面定義
+// 服務層介面（業務邏輯操作）
 // =====================================================
 
 /**
  * 扣點交易結果
+ * 設計思路：原子性操作的結果回饋
  */
 export interface DeductCreditResult {
   success: boolean;
@@ -166,6 +179,7 @@ export interface AddCreditResult {
 
 /**
  * API 呼叫請求參數
+ * 設計思路：封裝 API 呼叫的所有必要資訊
  */
 export interface ApiCallRequest {
   userId: string;
@@ -195,11 +209,12 @@ export interface GetUserUsageHistoryRequest {
 }
 
 // =====================================================
-// 查詢結果介面
+// 應用層組合介面
 // =====================================================
 
 /**
  * 使用者詳細資訊（含使用歷史）
+ * 設計思路：應用層組合查詢結果
  */
 export interface UserWithUsageHistory extends User {
   apiUsageHistory: MonthlyUsageSummary[];
@@ -213,6 +228,10 @@ export interface UserBalance {
   prepurchasedCredit: number;
   lastUpdated: string;
 }
+
+// =====================================================
+// 統計分析介面
+// =====================================================
 
 /**
  * API 使用統計
@@ -241,7 +260,7 @@ export interface MonthlyStats {
 }
 
 // =====================================================
-// 錯誤處理相關
+// 錯誤處理
 // =====================================================
 
 /**
@@ -265,7 +284,7 @@ export interface QuotaError {
 }
 
 // =====================================================
-// 資料庫查詢輔助類型
+// 輔助工具類型
 // =====================================================
 
 /**
@@ -308,10 +327,6 @@ export interface ApiCallFilter extends Partial<DateRangeParams> {
   maxCost?: number;
 }
 
-// =====================================================
-// 實用工具類型
-// =====================================================
-
 /**
  * 建立使用者請求
  */
@@ -341,55 +356,4 @@ export interface BatchOperationResult<T> {
   totalProcessed: number;
   successCount: number;
   failureCount: number;
-}
-
-// =====================================================
-// 匯出所有類型
-// =====================================================
-
-export type {
-  // 核心介面
-  UserTableScheme,
-  MonthlyUsageSummary,
-  
-  // 資料庫表格介面
-  User,
-  ApiEndpoint,
-  ApiCall,
-  MonthlyUsage,
-  CreditTransaction,
-  
-  // Service 層介面
-  DeductCreditResult,
-  AddCreditResult,
-  ApiCallRequest,
-  AddCreditRequest,
-  GetUserUsageHistoryRequest,
-  
-  // 查詢結果介面
-  UserWithUsageHistory,
-  UserBalance,
-  ApiUsageStats,
-  MonthlyStats,
-  
-  // 錯誤處理
-  QuotaError,
-  
-  // 輔助類型
-  PaginationParams,
-  PaginatedResult,
-  DateRangeParams,
-  ApiCallFilter,
-  CreateUserRequest,
-  UpdateEndpointCostRequest,
-  BatchOperationResult,
-};
-
-export {
-  // 枚舉
-  APIEndpoint,
-  QuotaErrorType,
-  
-  // 常數
-  apiQuotaMap,
-}; 
+} 

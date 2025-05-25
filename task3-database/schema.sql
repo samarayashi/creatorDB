@@ -16,10 +16,6 @@ CREATE TABLE users (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Users 表索引
-CREATE INDEX idx_users_credit ON users(prepurchased_credit);
-CREATE INDEX idx_users_updated ON users(updated_at);
-
 -- =====================================================
 -- 2. API Endpoints Table - 端點配置管理
 -- =====================================================
@@ -51,11 +47,14 @@ CREATE TABLE api_calls (
   FOREIGN KEY (endpoint) REFERENCES api_endpoints(endpoint) ON UPDATE CASCADE
 ) PARTITION BY RANGE (called_at);
 
--- API Calls 表索引（會自動應用到所有分區）
+-- API Calls 表索引（保留核心查詢需要的索引）
+-- 保留原因：查詢使用者 API 呼叫歷史（高頻查詢）
+-- 使用場景：getUserApiHistory(userId, dateRange)、使用者儀表板
 CREATE INDEX idx_api_calls_user_time ON api_calls(user_id, called_at DESC);
-CREATE INDEX idx_api_calls_endpoint_time ON api_calls(endpoint, called_at DESC);
+
+-- 保留原因：追蹤特定請求處理狀況（除錯必要）
+-- 使用場景：客服查詢、API 請求追蹤、問題排查
 CREATE INDEX idx_api_calls_request_id ON api_calls(request_id) WHERE request_id IS NOT NULL;
-CREATE INDEX idx_api_calls_metadata ON api_calls USING GIN(metadata) WHERE metadata IS NOT NULL;
 
 -- 建立基本分區（生產環境建議使用 pg_partman 自動管理）
 CREATE TABLE api_calls_2025_01 PARTITION OF api_calls
@@ -83,10 +82,11 @@ CREATE TABLE monthly_usage (
   FOREIGN KEY (endpoint) REFERENCES api_endpoints(endpoint) ON UPDATE CASCADE
 );
 
--- Monthly Usage 表索引
+-- Monthly Usage 表索引（保留核心查詢索引）
+-- 保留原因：查詢使用者月度使用歷史（核心業務功能）
+-- 使用場景：getUserUsageHistory(userId)、apiUsageHistory 組裝、使用者帳單
 CREATE INDEX idx_monthly_usage_user_month ON monthly_usage(user_id, month DESC);
-CREATE INDEX idx_monthly_usage_month ON monthly_usage(month);
-CREATE INDEX idx_monthly_usage_endpoint ON monthly_usage(endpoint);
+
 
 -- =====================================================
 -- 5. Credit Transactions Table - 點數異動記錄
@@ -105,10 +105,10 @@ CREATE TABLE credit_transactions (
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- Credit Transactions 表索引
+-- Credit Transactions 表索引（保留核心查詢索引）
+-- 保留原因：查詢使用者點數異動歷史（稽核必要）
+-- 使用場景：getUserCreditHistory(userId)、餘額驗證、客服查詢、對帳作業
 CREATE INDEX idx_credit_tx_user_time ON credit_transactions(user_id, created_at DESC);
-CREATE INDEX idx_credit_tx_reason ON credit_transactions(reason);
-CREATE INDEX idx_credit_tx_created_at ON credit_transactions(created_at DESC);
 
 -- =====================================================
 -- 6. 基本觸發器：自動更新 updated_at
@@ -148,13 +148,3 @@ INSERT INTO users (user_id, prepurchased_credit) VALUES
 ('test-user-1', 100),
 ('test-user-2', 50),
 ('test-user-3', 200);
-
--- =====================================================
--- 9. 權限設定範例（根據實際需求調整）
--- =====================================================
--- CREATE ROLE app_user WITH LOGIN PASSWORD 'your_secure_password';
--- GRANT SELECT, INSERT, UPDATE ON users TO app_user;
--- GRANT SELECT ON api_endpoints TO app_user;
--- GRANT INSERT ON api_calls TO app_user;
--- GRANT SELECT, INSERT, UPDATE ON monthly_usage TO app_user;
--- GRANT INSERT ON credit_transactions TO app_user; 

@@ -194,7 +194,15 @@ CREATE TABLE credit_transactions (
 
 ### 4. 關鍵設計決策
 
-#### `apiUsageHistory` 實作策略
+#### **Credit Transactions 表的設計考量**
+
+雖然理論上可透過 `api_calls` + `users` 重建交易歷史，但 `credit_transactions` 表提供：
+- **完整業務支援** - 購買點數、退款、客服調整等非 API 交易
+- **稽核效能** - 快速驗證餘額一致性，避免大表掃描
+- **交易完整性** - 記錄每次餘額變化的前後狀態
+
+#### **apiUsageHistory 實作策略**
+
 **決策：關聯式查詢組裝，非實際 DB 欄位**
 
 ```typescript
@@ -206,7 +214,7 @@ async function getUserWithUsageHistory(userId: string): Promise<UserTableScheme>
     FROM users WHERE user_id = $1
   `, [userId]);
   
-  // 2. 查詢月度使用歷史
+  // 2. 查詢月度使用歷史（DB 層組裝 JSON）
   const usageHistory = await db.query(`
     SELECT 
       to_char(month, 'YYYY-MM') as month,
@@ -245,64 +253,19 @@ async function getUserWithUsageHistory(userId: string): Promise<UserTableScheme>
 - ✅ **效能最佳化** - 透過 `monthly_usage` 快取表提升查詢速度
 
 #### 原子性扣點交易概念
-```typescript
-// 應用層交易處理概念
-async function deductCreditAndLogCall(request: ApiCallRequest) {
-  const transaction = await db.beginTransaction();
-  
-  try {
-    // 1. 查詢端點成本
-    const endpoint = await transaction.query(`
-      SELECT current_cost FROM api_endpoints 
-      WHERE endpoint = $1 AND is_active = true
-    `, [request.endpoint]);
-    
-    // 2. 檢查並扣除餘額
-    const result = await transaction.query(`
-      UPDATE users 
-      SET prepurchased_credit = prepurchased_credit - $2,
-          updated_at = NOW()
-      WHERE user_id = $1 AND prepurchased_credit >= $2
-      RETURNING prepurchased_credit
-    `, [request.userId, endpoint.current_cost]);
-    
-    if (result.rowCount === 0) {
-      throw new Error('INSUFFICIENT_CREDIT');
-    }
-    
-    // 3. 記錄 API 呼叫
-    await transaction.query(`
-      INSERT INTO api_calls(user_id, endpoint, cost, request_id, metadata)
-      VALUES ($1, $2, $3, $4, $5)
-    `, [request.userId, request.endpoint, endpoint.current_cost, request.requestId, request.metadata]);
-    
-    // 4. 更新月度彙整
-    await transaction.query(`
-      INSERT INTO monthly_usage(user_id, month, endpoint, call_count, total_cost)
-      VALUES ($1, date_trunc('month', NOW()), $2, 1, $3)
-      ON CONFLICT (user_id, month, endpoint)
-      DO UPDATE SET 
-        call_count = monthly_usage.call_count + 1,
-        total_cost = monthly_usage.total_cost + $3,
-        last_updated = NOW()
-    `, [request.userId, request.endpoint, endpoint.current_cost]);
-    
-    await transaction.commit();
-    return { success: true, newBalance: result.prepurchased_credit };
-    
-  } catch (error) {
-    await transaction.rollback();
-    throw error;
-  }
-}
-```
 
-### 5. 效能最佳化
+**交易流程：**
+1. **查詢端點成本** - 從 `api_endpoints` 表取得當前費用
+2. **檢查使用者餘額** - 確認 `prepurchased_credit` 是否足夠
+3. **扣除使用者餘額** - 原子性更新 `users` 表
+4. **記錄 API 呼叫** - 插入 `api_calls` 表（含分區）
+5. **記錄點數交易** - 插入 `credit_transactions` 表（稽核軌跡）
+6. **更新月度彙整** - UPSERT `monthly_usage` 表（效能快取）
 
-- **分區策略** - `api_calls` 按月分區，提升查詢效能
-- **快取機制** - `monthly_usage` 表提供預計算的月度統計
-- **索引最佳化** - 針對常用查詢模式設計索引
-- **向後相容** - 只擴展現有 users 表，不影響現有功能
+**ACID 保證：**
+- ✅ **原子性** - 所有操作在同一交易中完成或全部回滾
+- ✅ **一致性** - 餘額變化完整記錄，支援稽核驗證
+- ✅ **隔離性** - 避免併發扣點造成超刷問題
 
 ## 📁 檔案結構
 
@@ -312,32 +275,3 @@ task3-database/
 ├── schema.sql   # PostgreSQL DDL 檔案
 └── types.ts     # TypeScript 介面定義
 ```
-
-## 🚀 使用方式
-
-```bash
-# 建立資料庫
-psql -U postgres -d your_database -f schema.sql
-```
-
-```typescript
-// 使用 TypeScript 介面
-import { UserTableScheme, APIEndpoint } from './types';
-
-// 查詢使用者資料（含使用歷史）
-const user: UserTableScheme = await getUserWithUsageHistory('user-123');
-
-// 檢查使用者餘額
-const balance = await getUserBalance('user-123');
-
-// API 呼叫扣點（應用層實作）
-const result = await deductCreditAndLogCall({
-  userId: 'user-123',
-  endpoint: APIEndpoint.GetCreatorInfo,
-  requestId: 'req-456'
-});
-```
-
----
-
-**此設計完全滿足作業要求，提供完整的 API 配額管理系統。** 🚀 
