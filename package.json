@@ -17,9 +17,8 @@
     "task1:clean": "rm -rf task1-algorithm/dist",
     "task2:build": "cd task2-debug && tsc",
     "task2:test": "jest --testPathPattern=task2-debug",
-    "task2:demo": "npx ts-node task2-debug/src/example.ts",
-    "task2:demo:fixed": "npx ts-node task2-debug/src/fixed.ts",
-    "task2:demo:original": "npx ts-node task2-debug/src/test-original-behavior.js",
+    "task2:demo:new": "npx ts-node task2-debug/src/example.ts",
+    "task2:demo:ori": "npx ts-node task2-debug/src/test-original-behavior.js",
     "task2:clean": "rm -rf task2-debug/dist"
   },
   "keywords": [

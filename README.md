@@ -41,9 +41,10 @@ npm install
 npm run task1:test          # 執行測試
 npm run task1:demo          # 執行示範
 
-# Task 2 - 除錯
-npm run task2:demo          # 執行修正後的程式
-npm run task2:demo:original # 執行原始有問題的程式
+# Task 2 - Debug
+npm run task2:demo:ori      # Run original problematic version
+npm run task2:demo:new      # Run fixed version
+npm run task2:test
 ```
 
 ## 🛠️ 技術棧

@@ -68,8 +68,9 @@ function isValidYoutubePage(content: string): boolean {
 
 ### 執行示例
 ```bash
-npm run task2:demo        # 完整示例（包含真實網路請求）
-npm run task2:test        # 單元測試
+npm run demo:ori          # problematic code 
+npm run task2:demo:new    # Fixed version
+npm run task2:test        # Unit tests
 ```
 
 ### 測試涵蓋範圍
