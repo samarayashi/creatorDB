@@ -1,53 +1,53 @@
 # CreatorDB Backend Engineer Interview Test
 
-這個專案包含了 CreatorDB 後端工程師面試的三個技術任務。
+This project contains three technical tasks for the CreatorDB Backend Engineer interview.
 
-## 📋 原始任務說明
+## 📋 Original Task Description
 
-完整的任務說明請參考：[CreatorDB Backend Engineer Interview Test](https://hackmd.io/@e201o3jKTT6IRzMwsvEDyA/BkY1fgcxeg)
+For complete task details, please refer to: [CreatorDB Backend Engineer Interview Test](https://hackmd.io/@e201o3jKTT6IRzMwsvEDyA/BkY1fgcxeg)
 
-## 📁 專案結構
+## 📁 Project Structure
 
 ```
 creatorDB/
-├── package.json              # 專案配置和腳本
-├── tsconfig.json            # TypeScript 配置
-├── task1-algorithm/         # 任務一：演算法實作
-├── task2-debug/            # 任務二：程式碼除錯
-└── task3-database/         # 任務三：資料庫設計
+├── package.json              # Project configuration and scripts
+├── tsconfig.json            # TypeScript configuration
+├── task1-algorithm/         # Task 1: Algorithm Implementation
+├── task2-debug/            # Task 2: Code Debugging
+└── task3-database/         # Task 3: Database Schema Design
 ```
 
-## 🎯 任務概覽
+## 🎯 Task Overview
 
 ### [Task 1 - Algorithm: Fill in Missing Daily Metrics](./task1-algorithm/README.md)
-實作一個高效能的演算法來填補社群媒體創作者的缺失每日指標資料。
-**核心功能：** 將不完整的指標資料填補成完整的 7 天資料
+Implement an efficient algorithm to fill missing daily metrics data for social media creators.
+**Core Feature:** Fill incomplete metric data to complete 7-day dataset
 
 ### [Task 2 - Debug: YouTube Data Fetcher](./task2-debug/README.md)
-分析並修正 YouTube 資料抓取程式碼中的非同步處理問題。
-**核心問題：** Promise constructor antipattern 和錯誤的非同步處理邏輯。
+Analyze and fix asynchronous processing issues in YouTube data fetching code.
+**Core Issue:** Promise constructor antipattern and incorrect async handling logic.
 
 ### [Task 3 - Database Schema Design](./task3-database/README.md)
-設計一個支援 API 配額計算的資料庫架構。
-**核心需求：** 信用額度管理、使用量追蹤、歷史記錄保存和月度分析。
+Design a database schema that supports API quota management.
+**Core Requirements:** Credit management, usage tracking, historical records, and monthly analytics.
 
-## 🚀 快速開始
+## 🚀 Quick Start
 
-### 
+### Installation & Running
 ```bash
 npm install
 
-# Task 1 - 演算法
-npm run task1:test          # 執行測試
-npm run task1:demo          # 執行示範
+# Task 1 - Algorithm
+npm run task1:test          # Run tests
+npm run task1:demo          # Run demonstration
 
-# Task 2 - 除錯
-npm run task2:demo          # 執行修正後的程式
-npm run task2:demo:original # 執行原始有問題的程式
+# Task 2 - Debug
+npm run task2:demo          # Run fixed version
+npm run task2:demo:original # Run original problematic version
 ```
 
-## 🛠️ 技術棧
+## 🛠️ Tech Stack
 
-- **語言：** TypeScript 5.0
-- **測試：** Jest 29.5
+- **Language:** TypeScript 5.0
+- **Testing:** Jest 29.5
 

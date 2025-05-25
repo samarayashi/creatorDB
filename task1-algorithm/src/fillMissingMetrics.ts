@@ -3,26 +3,23 @@ import { fillMissingMetricsBinary } from './algorithms/binarySearch';
 import { fillMissingMetricsTwoPointers } from './algorithms/twoPointers';
 
 /**
- * 演算法選擇策略的配置
+ * Algorithm selection strategy configuration
  */
 interface AlgorithmConfig {
-  /** 是否偏好二分查找（在複雜度相近時） */
   preferBinary: boolean;
 }
-
 const defaultConfig: AlgorithmConfig = {
-  preferBinary: true  // 在複雜度相近時偏好二分查找（通常在小資料集上更穩定）
+  preferBinary: true  
 };
 
-
-/** 預設的回填天數 */
+/** Default number of days to fill */
 const DEFAULT_DAYS = 7; 
 
 /**
- * 根據資料量和目標天數，選擇最佳演算法
- * @param dataLength 原始資料筆數 (n)
- * @param targetLength 目標天數 (m)
- * @param config 演算法選擇配置
+ * Select the optimal algorithm based on data size and target days
+ * @param dataLength Original data count (n)
+ * @param targetLength Target days (m)
+ * @param config Algorithm selection configuration
  * @returns 'binary' | 'twoPointers'
  */
 export function selectAlgorithm(
@@ -33,58 +30,45 @@ export function selectAlgorithm(
   const n = dataLength;
   const m = targetLength;
   
-  // 計算兩種演算法的理論複雜度
+  // Calculate theoretical complexity for both algorithms
   const binaryComplexity = m * Math.log2(n);
   const twoPointerComplexity = m + n;
   
-  // 直接比較理論複雜度
+  // Direct comparison of theoretical complexity
   if (binaryComplexity < twoPointerComplexity) {
     return 'binary';
   } else if (binaryComplexity > twoPointerComplexity) {
     return 'twoPointers';
   } else {
-    // 複雜度相等時，根據配置決定
+    // When complexity is equal, decide based on configuration
     return config.preferBinary ? 'binary' : 'twoPointers';
   }
 }
 
 /**
- * 填補缺失的每日指標資料
+ * Fill missing daily metrics data
  * 
- * 此函式會自動根據資料量選擇最佳演算法：
- * - 二分查找：適合資料量較小的情況，時間複雜度 O(m * log n)
- * - 雙指針：適合資料量較大的情況，時間複雜度 O(m + n)
+ * This function automatically selects the optimal algorithm based on data size:
+ * - Binary Search: Suitable for smaller datasets, O(m * log n) time complexity
+ * - Two Pointers: Suitable for larger datasets, O(m + n) time complexity
  * 
- * @param data 已有的 Metric 陣列，必須按日期升序排列
- * @param length 要生成的天數，預設為 7 天
- * @returns 包含完整 length 天資料的 Metric 陣列，按日期升序排列
- * 
- * @throws {Error} 當輸入資料為空時
- * 
- * @example
- * ```typescript
- * const data = [
- *   { date: 1739068800000, averageLikesCount: 130, followersCount: 210, averageEngagementRate: 0.022 },
- *   { date: 1739328000000, averageLikesCount: 150, followersCount: 220, averageEngagementRate: 0.025 }
- * ];
- * 
- * const result = fillMissingMetrics(data, 7);
- * // 返回 7 天完整資料，缺失的天數會用最近的資料填補
- * ```
+ * @param data Existing Metric array, must be sorted by date in ascending order
+ * @param length Number of days to generate, defaults to 7 days
+ * @returns Metric array containing complete data for the specified length of days, sorted by date ascending
  */
 export function fillMissingMetrics(
   data: readonly Metric[],
   length: number = DEFAULT_DAYS
 ): Metric[] {
   if (data.length === 0) {
-    throw new Error("輸入資料至少需要包含一筆記錄");
+    throw new Error("Input data must contain at least one record");
   }
 
   if (length <= 0) {
-    throw new Error("目標天數必須大於 0");
+    throw new Error("Target days must be greater than 0");
   }
 
-  // 根據資料量動態選擇演算法
+  // Dynamically select algorithm based on data size
   const algorithm = selectAlgorithm(data.length, length);
   
   if (algorithm === 'binary') {

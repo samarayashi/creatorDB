@@ -6,7 +6,7 @@ import {
   MS_PER_DAY
 } from '../src';
 
-// 示範資料：模擬題目中的範例
+// Example data from the problem description
 const exampleData: Metric[] = [
   {
     date: 1738800000000,           // -6d
@@ -40,7 +40,7 @@ function formatDate(timestamp: number): string {
 
 function printMetrics(metrics: Metric[], title: string) {
   console.log(`\n=== ${title} ===`);
-  console.log('日期\t\t按讚數\t追蹤者\t互動率');
+  console.log('Date\t\tLikes\tFollowers\tEngagement');
   console.log('----------------------------------------');
   
   metrics.forEach(metric => {
@@ -51,61 +51,55 @@ function printMetrics(metrics: Metric[], title: string) {
 }
 
 function demonstrateAlgorithm() {
-  console.log('🚀 填補缺失每日指標演算法示範');
+  console.log('🚀 Fill Missing Daily Metrics Algorithm Demo');
   console.log('=====================================');
   
-  // 顯示原始資料
-  printMetrics(exampleData, '原始資料（有缺失）');
+  printMetrics(exampleData, 'Original Data (with gaps)');
   
-  // 使用自動選擇演算法
-  console.log('\n📊 使用自動演算法選擇：');
+  console.log('\n📊 Using automatic algorithm selection:');
   const autoResult = fillMissingMetrics(exampleData);
-  printMetrics(autoResult, '自動填補結果');
+  printMetrics(autoResult, 'Auto-filled Result');
   
-  // 使用二分查找
-  console.log('\n🔍 使用二分查找演算法：');
+  console.log('\n🔍 Using binary search algorithm:');
   const binaryResult = fillMissingMetricsBinary(exampleData);
-  printMetrics(binaryResult, '二分查找結果');
+  printMetrics(binaryResult, 'Binary Search Result');
   
-  // 使用雙指針
-  console.log('\n👆 使用雙指針演算法：');
+  console.log('\n👆 Using two-pointer algorithm:');
   const twoPointerResult = fillMissingMetricsTwoPointers(exampleData);
-  printMetrics(twoPointerResult, '雙指針結果');
+  printMetrics(twoPointerResult, 'Two-Pointer Result');
   
-  // 驗證結果一致性
+  // Verify consistency
   const isConsistent = JSON.stringify(autoResult) === JSON.stringify(binaryResult) &&
                       JSON.stringify(binaryResult) === JSON.stringify(twoPointerResult);
   
-  console.log(`\n✅ 演算法結果一致性檢查：${isConsistent ? '通過' : '失敗'}`);
+  console.log(`\n✅ Algorithm consistency check: ${isConsistent ? 'PASS' : 'FAIL'}`);
   
-  // 展示不同天數的配置
-  console.log('\n📅 不同天數配置示範：');
+  console.log('\n📅 Different day configurations:');
   
   const configs = [
-    { days: 3, name: '3天' },
-    { days: 14, name: '14天' },
-    { days: 30, name: '30天' }
+    { days: 3, name: '3 days' },
+    { days: 14, name: '14 days' },
+    { days: 30, name: '30 days' }
   ];
   
   configs.forEach(config => {
     const result = fillMissingMetrics(exampleData, config.days);
-    console.log(`${config.name}：生成 ${result.length} 筆資料`);
-    console.log(`  日期範圍：${formatDate(result[0]!.date)} 到 ${formatDate(result[result.length - 1]!.date)}`);
+    console.log(`${config.name}: Generated ${result.length} records`);
+    console.log(`  Date range: ${formatDate(result[0]!.date)} to ${formatDate(result[result.length - 1]!.date)}`);
   });
 }
 
 function performanceDemo() {
-  console.log('\n⚡ 效能測試示範');
+  console.log('\n⚡ Performance Test Demo');
   console.log('================');
   
-  // 生成大量測試資料
   function generateTestData(count: number): Metric[] {
     const data: Metric[] = [];
     const baseDate = Date.now();
     
     for (let i = 0; i < count; i++) {
       data.push({
-        date: baseDate - i * MS_PER_DAY * 2, // 每隔兩天一筆資料
+        date: baseDate - i * MS_PER_DAY * 2, // Every 2 days
         averageLikesCount: 100 + Math.floor(Math.random() * 100),
         followersCount: 1000 + Math.floor(Math.random() * 1000),
         averageEngagementRate: 0.01 + Math.random() * 0.05
@@ -116,44 +110,44 @@ function performanceDemo() {
   }
   
   const testCases = [
-    { dataSize: 10, targetDays: 30, name: '小資料集' },
-    { dataSize: 100, targetDays: 365, name: '中等資料集' },
-    { dataSize: 1000, targetDays: 365, name: '大資料集' }
+    { dataSize: 10, targetDays: 30, name: 'Small dataset' },
+    { dataSize: 100, targetDays: 365, name: 'Medium dataset' },
+    { dataSize: 1000, targetDays: 365, name: 'Large dataset' }
   ];
   
   testCases.forEach(testCase => {
     const testData = generateTestData(testCase.dataSize);
     
-    console.log(`\n${testCase.name}（${testCase.dataSize} 筆資料，目標 ${testCase.targetDays} 天）：`);
+    console.log(`\n${testCase.name} (${testCase.dataSize} records, target ${testCase.targetDays} days):`);
     
-    // 測試二分查找
+    // Test binary search
     const binaryStart = performance.now();
     const binaryResult = fillMissingMetricsBinary(testData, testCase.targetDays);
     const binaryTime = performance.now() - binaryStart;
     
-    // 測試雙指針
+    // Test two-pointer
     const twoPointerStart = performance.now();
     const twoPointerResult = fillMissingMetricsTwoPointers(testData, testCase.targetDays);
     const twoPointerTime = performance.now() - twoPointerStart;
     
-    // 測試自動選擇
+    // Test auto selection
     const autoStart = performance.now();
     const autoResult = fillMissingMetrics(testData, testCase.targetDays);
     const autoTime = performance.now() - autoStart;
     
-    console.log(`  二分查找：${binaryTime.toFixed(2)}ms`);
-    console.log(`  雙指針：${twoPointerTime.toFixed(2)}ms`);
-    console.log(`  自動選擇：${autoTime.toFixed(2)}ms`);
-    console.log(`  結果長度：${autoResult.length}`);
+    console.log(`  Binary search: ${binaryTime.toFixed(2)}ms`);
+    console.log(`  Two-pointer: ${twoPointerTime.toFixed(2)}ms`);
+    console.log(`  Auto selection: ${autoTime.toFixed(2)}ms`);
+    console.log(`  Result length: ${autoResult.length}`);
     
-    // 驗證結果一致性
+    // Verify consistency
     const consistent = JSON.stringify(binaryResult) === JSON.stringify(twoPointerResult) &&
                       JSON.stringify(twoPointerResult) === JSON.stringify(autoResult);
-    console.log(`  結果一致：${consistent ? '✅' : '❌'}`);
+    console.log(`  Consistent: ${consistent ? '✅' : '❌'}`);
   });
 }
 
-// 執行示範
+// Run demo
 if (require.main === module) {
   demonstrateAlgorithm();
   performanceDemo();

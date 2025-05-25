@@ -1,62 +1,61 @@
 import { Metric } from '../src/shared/types';
 
-// 統一的基準日期 - 與測試檔案中的 MOCK_TODAY 保持一致
-export const MOCK_TODAY = 1739318400000; // 2025-02-12 00:00:00 UTC (修正為真正的零點)
+// Unified baseline date - consistent with MOCK_TODAY in test files
+export const MOCK_TODAY = 1739318400000; // 2025-02-12 00:00:00 UTC
 export const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 /**
- * 計算相對於 MOCK_TODAY 的日期
- * @param daysOffset 天數偏移（負數表示過去，正數表示未來）
- * @returns 計算後的時間戳
+ * Calculate date relative to MOCK_TODAY
+ * @param daysOffset Day offset (negative for past, positive for future)
+ * @returns Calculated timestamp
  */
 export function getDateOffset(daysOffset: number): number {
   return MOCK_TODAY + daysOffset * MS_PER_DAY;
 }
 
 /**
- * 題目提供的範例 1
- * 包含 7 筆資料，但有部分天數缺失
- * 基於 MOCK_TODAY 計算所有日期
+ * Example 1 from problem description
+ * Contains 7 records with some missing days
  */
 export const example1: Metric[] = [
   {
-    date: getDateOffset(-11),      // -11d
+    date: getDateOffset(-11),
     averageLikesCount: 100,
     followersCount: 200,
     averageEngagementRate: 0.01
   },
   {
-    date: getDateOffset(-9),       // -9d
+    date: getDateOffset(-9),
     averageLikesCount: 105,
     followersCount: 202,
     averageEngagementRate: 0.012
   },
   {
-    date: getDateOffset(-7),       // -7d
+    date: getDateOffset(-7),
     averageLikesCount: 110,
     followersCount: 205,
     averageEngagementRate: 0.015
   },
   {
-    date: getDateOffset(-6),       // -6d
+    date: getDateOffset(-6),
     averageLikesCount: 120,
     followersCount: 208,
     averageEngagementRate: 0.02
   },
   {
-    date: getDateOffset(-3),       // -3d
+    date: getDateOffset(-3),
     averageLikesCount: 130,
     followersCount: 210,
     averageEngagementRate: 0.022
   },
   {
-    date: getDateOffset(-2),       // -2d
+    date: getDateOffset(-2),
     averageLikesCount: 140,
     followersCount: 215,
     averageEngagementRate: 0.023
   },
   {
-    date: getDateOffset(0),        // 0d (today)
+    date: getDateOffset(0),
     averageLikesCount: 150,
     followersCount: 220,
     averageEngagementRate: 0.025
@@ -64,19 +63,18 @@ export const example1: Metric[] = [
 ];
 
 /**
- * 題目提供的範例 2
- * 只有 2 筆資料，需要大量填補
- * 基於 MOCK_TODAY 計算所有日期
+ * Example 2 from problem description
+ * Only 2 records, requires extensive filling
  */
 export const example2: Metric[] = [
   {
-    date: getDateOffset(-5),       // -5d
+    date: getDateOffset(-5),
     averageLikesCount: 120,
     followersCount: 208,
     averageEngagementRate: 0.02
   },
   {
-    date: getDateOffset(0),        // 0d (today)
+    date: getDateOffset(0),
     averageLikesCount: 150,
     followersCount: 220,
     averageEngagementRate: 0.025
@@ -84,12 +82,11 @@ export const example2: Metric[] = [
 ];
 
 /**
- * 邊界測試：只有一筆資料
- * 基於 MOCK_TODAY 計算日期
+ * Edge case: single data point
  */
 export const singleDataPoint: Metric[] = [
   {
-    date: getDateOffset(-2),       // -2d
+    date: getDateOffset(-2),
     averageLikesCount: 100,
     followersCount: 500,
     averageEngagementRate: 0.05
@@ -97,24 +94,23 @@ export const singleDataPoint: Metric[] = [
 ];
 
 /**
- * 完整資料：已經有完整的 7 天資料
- * 基於 MOCK_TODAY 計算所有日期，確保完全對應目標範圍
+ * Complete data: full 7-day dataset
  */
 export const completeData: Metric[] = [
-  { date: getDateOffset(-6), averageLikesCount: 100, followersCount: 200, averageEngagementRate: 0.01 }, // -6d
-  { date: getDateOffset(-5), averageLikesCount: 105, followersCount: 205, averageEngagementRate: 0.015 }, // -5d
-  { date: getDateOffset(-4), averageLikesCount: 110, followersCount: 210, averageEngagementRate: 0.02 }, // -4d
-  { date: getDateOffset(-3), averageLikesCount: 115, followersCount: 215, averageEngagementRate: 0.025 }, // -3d
-  { date: getDateOffset(-2), averageLikesCount: 120, followersCount: 220, averageEngagementRate: 0.03 }, // -2d
-  { date: getDateOffset(-1), averageLikesCount: 125, followersCount: 225, averageEngagementRate: 0.035 }, // -1d
-  { date: getDateOffset(0), averageLikesCount: 130, followersCount: 230, averageEngagementRate: 0.04 }, // 0d (today)
+  { date: getDateOffset(-6), averageLikesCount: 100, followersCount: 200, averageEngagementRate: 0.01 },
+  { date: getDateOffset(-5), averageLikesCount: 105, followersCount: 205, averageEngagementRate: 0.015 },
+  { date: getDateOffset(-4), averageLikesCount: 110, followersCount: 210, averageEngagementRate: 0.02 },
+  { date: getDateOffset(-3), averageLikesCount: 115, followersCount: 215, averageEngagementRate: 0.025 },
+  { date: getDateOffset(-2), averageLikesCount: 120, followersCount: 220, averageEngagementRate: 0.03 },
+  { date: getDateOffset(-1), averageLikesCount: 125, followersCount: 225, averageEngagementRate: 0.035 },
+  { date: getDateOffset(0), averageLikesCount: 130, followersCount: 230, averageEngagementRate: 0.04 },
 ];
 
 /**
- * 生成大量測試資料（用於效能測試）
- * @param count 資料筆數
- * @param startDateOffset 起始日期相對於 MOCK_TODAY 的偏移天數（預設為今天）
- * @returns 測試資料陣列
+ * Generate large test dataset for performance testing
+ * @param count Number of records
+ * @param startDateOffset Start date offset relative to MOCK_TODAY (default: today)
+ * @returns Test data array
  */
 export function generateLargeDataset(count: number, startDateOffset: number = 0): Metric[] {
   const data: Metric[] = [];
@@ -128,6 +124,6 @@ export function generateLargeDataset(count: number, startDateOffset: number = 0)
     });
   }
   
-  // 按日期升序排列
+  // Sort by date ascending
   return data.sort((a, b) => a.date - b.date);
 } 

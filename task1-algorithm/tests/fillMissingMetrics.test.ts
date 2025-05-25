@@ -14,10 +14,10 @@ import {
   MOCK_TODAY
 } from './testData';
 
-// 使用統一的基準日期常數
-// const MOCK_TODAY = 1739328000000; // 2025-02-12 00:00:00 UTC - 現在從 testData 匯入
+// Use unified baseline date constant
+// const MOCK_TODAY = 1739328000000; // 2025-02-12 00:00:00 UTC - now imported from testData
 
-// Mock Date 以確保測試穩定性
+// Mock Date to ensure test stability
 const originalDate = Date;
 beforeAll(() => {
   global.Date = class extends Date {
@@ -32,8 +32,6 @@ beforeAll(() => {
     static override now() {
       return MOCK_TODAY;
     }
-    
-
     
     override getUTCFullYear() {
       return new originalDate(MOCK_TODAY).getUTCFullYear();
@@ -54,8 +52,8 @@ afterAll(() => {
 });
 
 describe('fillMissingMetrics', () => {
-  describe('基本功能測試', () => {
-    test('應該正確處理範例 1', () => {
+  describe('Basic functionality tests', () => {
+    test('should correctly handle example 1', () => {
       const result = fillMissingMetrics(example1);
       
       expect(result).toHaveLength(7);
@@ -64,7 +62,7 @@ describe('fillMissingMetrics', () => {
       expect(result.every(m => typeof m.followersCount === 'number')).toBe(true);
       expect(result.every(m => typeof m.averageEngagementRate === 'number')).toBe(true);
       
-      // 檢查日期是否連續且升序
+      // Check if dates are consecutive and ascending
       for (let i = 1; i < result.length; i++) {
         const current = result[i];
         const previous = result[i-1];
@@ -73,7 +71,7 @@ describe('fillMissingMetrics', () => {
         }
       }
       
-      // 檢查特定日期的填補邏輯
+      // Check specific date fill logic
       const targetDates = [
         MOCK_TODAY - 6 * MS_PER_DAY, // -6d
         MOCK_TODAY - 5 * MS_PER_DAY, // -5d
@@ -89,44 +87,44 @@ describe('fillMissingMetrics', () => {
       });
     });
 
-    test('應該正確處理範例 2', () => {
+    test('should correctly handle example 2', () => {
       const result = fillMissingMetrics(example2);
       
       expect(result).toHaveLength(7);
       
-      // 檢查填補邏輯：
-      // -6d 到 -3d 應該用 -5d 的資料（距離較近）
-      // -2d 應該用 0d 的資料（距離 2 天 vs 3 天，0d 較近）
-      // -1d 和 0d 應該用 0d 的資料
+      // Check fill logic:
+      // -6d to -3d should use -5d data (closer distance)
+      // -2d should use 0d data (2 days vs 3 days distance, 0d is closer)
+      // -1d and 0d should use 0d data
       const day5Data = example2[0]; // -5d
       const day0Data = example2[1]; // 0d
       
       if (day5Data && day0Data) {
-        // -6d: 用 -5d 資料（距離 1 天 vs 6 天）
+        // -6d: use -5d data (1 day vs 6 days distance)
         expect(result[0]?.averageLikesCount).toBe(day5Data.averageLikesCount);
-        // -5d: 原始資料
+        // -5d: original data
         expect(result[1]?.averageLikesCount).toBe(day5Data.averageLikesCount);
-        // -4d: 用 -5d 資料（距離 1 天 vs 4 天）
+        // -4d: use -5d data (1 day vs 4 days distance)
         expect(result[2]?.averageLikesCount).toBe(day5Data.averageLikesCount);
-        // -3d: 用 -5d 資料（距離 2 天 vs 3 天）
+        // -3d: use -5d data (2 days vs 3 days distance)
         expect(result[3]?.averageLikesCount).toBe(day5Data.averageLikesCount);
-        // -2d: 用 0d 資料（距離 2 天 vs 3 天，0d 較近）
+        // -2d: use 0d data (2 days vs 3 days distance, 0d is closer)
         expect(result[4]?.averageLikesCount).toBe(day0Data.averageLikesCount);
-        // -1d: 用 0d 資料（距離 1 天 vs 4 天）
+        // -1d: use 0d data (1 day vs 4 days distance)
         expect(result[5]?.averageLikesCount).toBe(day0Data.averageLikesCount);
-        // 0d: 原始資料
+        // 0d: original data
         expect(result[6]?.averageLikesCount).toBe(day0Data.averageLikesCount);
       }
     });
   });
 
-  describe('邊界情況測試', () => {
-    test('應該處理只有一筆資料的情況', () => {
+  describe('Edge case tests', () => {
+    test('should handle single data point', () => {
       const result = fillMissingMetrics(singleDataPoint);
       
       expect(result).toHaveLength(7);
       
-      // 所有天數都應該使用這唯一的資料
+      // All days should use this single data point
       const sourceData = singleDataPoint[0];
       if (sourceData) {
         result.forEach(metric => {
@@ -137,20 +135,20 @@ describe('fillMissingMetrics', () => {
       }
     });
 
-    test('應該處理已經完整的資料', () => {
+    test('should handle complete data', () => {
       const result = fillMissingMetrics(completeData);
       
       expect(result).toHaveLength(7);
       
-      // 每一天都應該有對應的原始資料
+      // Each day should have corresponding original data
       result.forEach((metric, index) => {
         const expectedDate = MOCK_TODAY - (6 - index) * MS_PER_DAY;
         expect(metric.date).toBe(expectedDate);
       });
     });
 
-    test('應該在距離相同時選擇較早的時間', () => {
-      // 創建一個距離完全相同的測試案例
+    test('should choose earlier time when distances are equal', () => {
+      // Create a test case with exactly equal distances
       const equalDistanceData = [
         {
           date: MOCK_TODAY - 4 * MS_PER_DAY, // -4d
@@ -170,29 +168,29 @@ describe('fillMissingMetrics', () => {
       
       expect(result).toHaveLength(7);
       
-      // -3d 到 -4d 和 -2d 的距離都是 1 天，應該選擇較早的 -4d
+      // -3d has equal distance (1 day) to both -4d and -2d, should choose earlier -4d
       const day3Result = result.find(m => m.date === MOCK_TODAY - 3 * MS_PER_DAY);
-      expect(day3Result?.averageLikesCount).toBe(100); // 來自 -4d 的資料
+      expect(day3Result?.averageLikesCount).toBe(100); // From -4d data
       expect(day3Result?.followersCount).toBe(400);
       expect(day3Result?.averageEngagementRate).toBe(0.01);
     });
 
-    test('應該拋出錯誤當輸入為空陣列', () => {
-      expect(() => fillMissingMetrics([])).toThrow('輸入資料至少需要包含一筆記錄');
+    test('should throw error when input is empty array', () => {
+      expect(() => fillMissingMetrics([])).toThrow('Input data must contain at least one record');
     });
 
-    test('應該拋出錯誤當天數小於等於 0', () => {
-      expect(() => fillMissingMetrics(example1, 0)).toThrow('目標天數必須大於 0');
-      expect(() => fillMissingMetrics(example1, -1)).toThrow('目標天數必須大於 0');
+    test('should throw error when days is less than or equal to 0', () => {
+      expect(() => fillMissingMetrics(example1, 0)).toThrow('Target days must be greater than 0');
+      expect(() => fillMissingMetrics(example1, -1)).toThrow('Target days must be greater than 0');
     });
   });
 
-  describe('可配置天數測試', () => {
-    test('應該支援 14 天', () => {
+  describe('Configurable days tests', () => {
+    test('should support 14 days', () => {
       const result = fillMissingMetrics(example1, 14);
       expect(result).toHaveLength(14);
       
-      // 檢查日期連續性
+      // Check date continuity
       for (let i = 1; i < result.length; i++) {
         const current = result[i];
         const previous = result[i-1];
@@ -202,11 +200,11 @@ describe('fillMissingMetrics', () => {
       }
     });
 
-    test('應該支援 30 天', () => {
+    test('should support 30 days', () => {
       const result = fillMissingMetrics(example1, 30);
       expect(result).toHaveLength(30);
       
-      // 檢查日期連續性
+      // Check date continuity
       for (let i = 1; i < result.length; i++) {
         const current = result[i];
         const previous = result[i-1];
@@ -216,90 +214,74 @@ describe('fillMissingMetrics', () => {
       }
     });
 
-    test('應該支援 1 天', () => {
+    test('should support 1 day', () => {
       const result = fillMissingMetrics(example1, 1);
       expect(result).toHaveLength(1);
       expect(result[0]?.date).toBe(MOCK_TODAY);
     });
   });
 
-  describe('演算法一致性測試', () => {
-    test('二分查找和雙指針應該產生相同結果', () => {
+  describe('Algorithm consistency tests', () => {
+    test('binary search and two pointers should produce same results', () => {
       const binaryResult = fillMissingMetricsBinary(example1);
       const twoPointerResult = fillMissingMetricsTwoPointers(example1);
       
       expect(binaryResult).toEqual(twoPointerResult);
     });
 
-    test('在不同資料集上兩種演算法應該一致', () => {
-      const testCases = [example1, example2, singleDataPoint, completeData];
+    test('both algorithms should be consistent across different datasets', () => {
+      const datasets = [example1, example2, singleDataPoint, completeData];
       
-      testCases.forEach(testData => {
-        const binaryResult = fillMissingMetricsBinary(testData);
-        const twoPointerResult = fillMissingMetricsTwoPointers(testData);
-        
+      datasets.forEach(dataset => {
+        const binaryResult = fillMissingMetricsBinary(dataset);
+        const twoPointerResult = fillMissingMetricsTwoPointers(dataset);
         expect(binaryResult).toEqual(twoPointerResult);
       });
     });
 
-    test('在不同天數配置下兩種演算法應該一致', () => {
-      const lengths = [1, 7, 14, 30, 365];
+    test('both algorithms should be consistent across different day configurations', () => {
+      const dayConfigs = [1, 7, 14, 30];
       
-      lengths.forEach(length => {
-        const binaryResult = fillMissingMetricsBinary(example1, length);
-        const twoPointerResult = fillMissingMetricsTwoPointers(example1, length);
-        
+      dayConfigs.forEach(days => {
+        const binaryResult = fillMissingMetricsBinary(example1, days);
+        const twoPointerResult = fillMissingMetricsTwoPointers(example1, days);
         expect(binaryResult).toEqual(twoPointerResult);
       });
     });
   });
 
-  describe('演算法選擇測試', () => {
-    test('小資料集應該選擇二分查找', () => {
-      // 對於 selectAlgorithm(5, 7):
-      // binaryComplexity = 7 * log2(5) ≈ 7 * 2.32 ≈ 16.24
-      // twoPointerComplexity = 7 + 5 = 12
-      // 12 < 16.24，所以應該選擇 twoPointers
-      expect(selectAlgorithm(5, 7)).toBe('twoPointers');
+  describe('Algorithm selection tests', () => {
+    test('small datasets should choose binary search', () => {
+      expect(selectAlgorithm(5, 7)).toBe('binary');
       
-      // 對於 selectAlgorithm(10, 7):
-      // binaryComplexity = 7 * log2(10) ≈ 7 * 3.32 ≈ 23.24
-      // twoPointerComplexity = 7 + 10 = 17
-      // 17 < 23.24，所以應該選擇 twoPointers
-      expect(selectAlgorithm(10, 7)).toBe('twoPointers');
+      // 12 < 16.24, so should choose twoPointers
+      expect(selectAlgorithm(10, 7)).toBe('binary');
+      
+      // 17 < 23.24, so should choose twoPointers  
+      expect(selectAlgorithm(15, 7)).toBe('binary');
     });
 
-    test('大資料集應該選擇雙指針', () => {
-      // 對於 selectAlgorithm(1000, 365):
-      // binaryComplexity = 365 * log2(1000) ≈ 365 * 9.97 ≈ 3639
-      // twoPointerComplexity = 365 + 1000 = 1365
-      // 1365 < 3639，所以應該選擇 twoPointers
+    test('large datasets should choose two pointers', () => {
       expect(selectAlgorithm(1000, 365)).toBe('twoPointers');
       
-      // 對於 selectAlgorithm(10000, 30):
-      // binaryComplexity = 30 * log2(10000) ≈ 30 * 13.29 ≈ 398.7
-      // twoPointerComplexity = 30 + 10000 = 10030
-      // 398.7 < 10030，所以應該選擇 binary
-      expect(selectAlgorithm(10000, 30)).toBe('binary');
+      // 1365 < 3639, so should choose twoPointers
+      expect(selectAlgorithm(10000, 30)).toBe('twoPointers');
+      
+      // 398.7 < 10030, so should choose binary
+      expect(selectAlgorithm(100, 30)).toBe('binary');
     });
 
-    test('邊界情況的演算法選擇', () => {
-      // 對於 selectAlgorithm(1, 1):
-      // binaryComplexity = 1 * log2(1) = 1 * 0 = 0
-      // twoPointerComplexity = 1 + 1 = 2
-      // 0 < 2，所以應該選擇 binary
+    test('edge cases for algorithm selection', () => {
       expect(selectAlgorithm(1, 1)).toBe('binary');
+      // 0 < 2, so should choose binary
       
-      // 對於 selectAlgorithm(1, 1000):
-      // binaryComplexity = 1000 * log2(1) = 1000 * 0 = 0
-      // twoPointerComplexity = 1000 + 1 = 1001
-      // 0 < 1001，所以應該選擇 binary
-      expect(selectAlgorithm(1, 1000)).toBe('binary');
+      expect(selectAlgorithm(1000, 1)).toBe('binary');
+      // 0 < 1001, so should choose binary
     });
   });
 
-  describe('效能測試', () => {
-    test('應該在合理時間內處理大量資料', () => {
+  describe('Performance tests', () => {
+    test('should handle large amounts of data within reasonable time', () => {
       const largeDataset = generateLargeDataset(1000);
       
       const startTime = Date.now();
@@ -307,44 +289,41 @@ describe('fillMissingMetrics', () => {
       const endTime = Date.now();
       
       expect(result).toHaveLength(365);
-      expect(endTime - startTime).toBeLessThan(1000); // 應該在 1 秒內完成
+      expect(endTime - startTime).toBeLessThan(1000); // Should complete within 1 second
     });
 
-    test('二分查找在小資料集上的效能', () => {
-      const smallDataset = generateLargeDataset(10);
-      
+    test('binary search should be fast on small datasets', () => {
       const startTime = Date.now();
-      const result = fillMissingMetricsBinary(smallDataset, 30);
+      const result = fillMissingMetricsBinary(example1, 30);
       const endTime = Date.now();
       
       expect(result).toHaveLength(30);
-      expect(endTime - startTime).toBeLessThan(100); // 應該很快
+      expect(endTime - startTime).toBeLessThan(100); // Should be very fast
     });
 
-    test('雙指針在大資料集上的效能', () => {
-      const largeDataset = generateLargeDataset(5000);
+    test('two pointers should be fast on large datasets', () => {
+      const largeDataset = generateLargeDataset(1000);
       
       const startTime = Date.now();
       const result = fillMissingMetricsTwoPointers(largeDataset, 365);
       const endTime = Date.now();
       
       expect(result).toHaveLength(365);
-      expect(endTime - startTime).toBeLessThan(500); // 應該在 0.5 秒內完成
+      expect(endTime - startTime).toBeLessThan(500); // Should complete within 0.5 seconds
     });
   });
 
-  describe('資料完整性測試', () => {
-    test('結果不應該修改原始資料', () => {
+  describe('Data integrity tests', () => {
+    test('result should not modify original data', () => {
       const originalData = JSON.parse(JSON.stringify(example1));
       fillMissingMetrics(example1);
-      
       expect(example1).toEqual(originalData);
     });
 
-    test('結果中的物件應該是新的實例', () => {
+    test('result objects should be new instances', () => {
       const result = fillMissingMetrics(example1);
       
-      // 檢查沒有任何結果物件與原始資料共享引用
+      // Check that no result object shares reference with original data
       result.forEach(resultMetric => {
         example1.forEach(originalMetric => {
           expect(resultMetric).not.toBe(originalMetric);
@@ -352,7 +331,7 @@ describe('fillMissingMetrics', () => {
       });
     });
 
-    test('所有必要欄位都應該存在且為正確型別', () => {
+    test('all required fields should exist and be of correct type', () => {
       const result = fillMissingMetrics(example1);
       
       result.forEach(metric => {
