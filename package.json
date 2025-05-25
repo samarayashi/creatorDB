@@ -5,14 +5,16 @@
   "main": "task1-algorithm/dist/index.js",
   "types": "task1-algorithm/dist/index.d.ts",
   "scripts": {
-    "build": "cd task1-algorithm && tsc",
-    "test": "cd task1-algorithm && jest",
-    "test:watch": "cd task1-algorithm && jest --watch",
-    "test:coverage": "cd task1-algorithm && jest --coverage",
-    "dev": "cd task1-algorithm && ts-node src/index.ts",
-    "lint": "cd task1-algorithm && eslint src tests --ext .ts",
-    "format": "cd task1-algorithm && prettier --write src tests",
-    "clean": "rm -rf task1-algorithm/dist"
+    "build:all": "tsc --build",
+    "clean:all": "rm -rf task1-algorithm/dist task2-debug/dist task3-database/dist",
+    "task1:build": "cd task1-algorithm && tsc",
+    "task1:test": "cd task1-algorithm && jest",
+    "task1:test:watch": "cd task1-algorithm && jest --watch",
+    "task1:test:coverage": "cd task1-algorithm && jest --coverage",
+    "task1:demo": "cd task1-algorithm && npx ts-node examples/demo.ts",
+    "task1:lint": "cd task1-algorithm && eslint src tests --ext .ts",
+    "task1:format": "cd task1-algorithm && prettier --write src tests",
+    "task1:clean": "rm -rf task1-algorithm/dist"
   },
   "keywords": [
     "algorithm",

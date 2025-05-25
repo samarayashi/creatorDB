@@ -19,8 +19,10 @@ creatorDB/
 │   ├── tsconfig.json       # Task1 專用配置
 │   └── README.md           # 詳細說明
 ├── task2-debug/            # 任務二：程式碼除錯
+│   ├── tsconfig.json       # Task2 專用配置
 │   └── README.md
 └── task3-database/         # 任務三：資料庫設計
+    ├── tsconfig.json       # Task3 專用配置
     └── README.md
 ```
 
@@ -35,7 +37,7 @@ creatorDB/
 - 支援二分查找和雙指針兩種演算法
 - 根據資料量自動選擇最佳策略
 - 完整的 TypeScript 型別定義
-- 100% 測試覆蓋率
+- 96%+ 測試覆蓋率
 
 **詳細說明：** [task1-algorithm/README.md](./task1-algorithm/README.md)
 
@@ -60,33 +62,42 @@ creatorDB/
 npm install
 ```
 
+### 全局操作
+
+```bash
+# 編譯所有任務
+npm run build:all
+
+# 清理所有編譯檔案
+npm run clean:all
+```
+
 ### Task 1 - 演算法任務
 
 ```bash
+# 編譯
+npm run task1:build
+
 # 執行測試
-npm test
+npm run task1:test
 
 # 執行測試覆蓋率
-npm run test:coverage
+npm run task1:test:coverage
+
+# 監視模式測試
+npm run task1:test:watch
 
 # 執行示範程式
-npm run dev
+npm run task1:demo
 
-# 編譯 TypeScript
-npm run build
-```
-
-### 開發工具
-
-```bash
 # 程式碼檢查
-npm run lint
+npm run task1:lint
 
 # 格式化程式碼
-npm run format
+npm run task1:format
 
 # 清理編譯檔案
-npm run clean
+npm run task1:clean
 ```
 
 ## 🛠️ 技術棧
@@ -95,14 +106,28 @@ npm run clean
 - **測試：** Jest 29.5
 - **程式碼品質：** ESLint + Prettier
 - **建置工具：** TypeScript Compiler
+- **專案管理：** TypeScript Project References
 
 ## 📝 開發說明
 
-每個任務都有獨立的目錄結構，但共用根目錄的配置文件：
+### TypeScript 配置策略
 
-- `package.json` - 包含所有任務的依賴和腳本
-- `tsconfig.json` - 基礎 TypeScript 配置
-- 各任務可以有自己的 `tsconfig.json` 來覆蓋特定設定
+本專案使用 **TypeScript Project References** 來管理多任務結構：
+
+- **根目錄 `tsconfig.json`**：定義共用的編譯選項和專案引用
+- **各任務 `tsconfig.json`**：繼承根配置，定義任務特定的設定
+
+### 腳本命名規則
+
+- **全局操作**：`操作:all` (例如：`build:all`, `clean:all`)
+- **任務特定**：`task任務號:操作` (例如：`task1:test`, `task1:build`)
+
+### 新增任務時的步驟
+
+1. 創建 `taskN-名稱/` 目錄
+2. 添加 `taskN-名稱/tsconfig.json` (繼承根配置)
+3. 在根目錄 `tsconfig.json` 的 `references` 中添加新任務
+4. 在 `package.json` 中添加相應的腳本
 
 ## 🎯 面試評估重點
 
