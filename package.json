@@ -19,7 +19,7 @@
     "task2:test": "jest --testPathPattern=task2-debug",
     "task2:demo": "npx ts-node task2-debug/src/example.ts",
     "task2:demo:fixed": "npx ts-node task2-debug/src/fixed.ts",
-    "task2:demo:original": "npx ts-node task2-debug/src/original.js",
+    "task2:demo:original": "npx ts-node task2-debug/src/test-original-behavior.js",
     "task2:clean": "rm -rf task2-debug/dist"
   },
   "keywords": [

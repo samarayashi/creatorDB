@@ -24,7 +24,6 @@
   "references": [
     { "path": "./task1-algorithm" },
     { "path": "./task2-debug" },
-    { "path": "./task3-database" }
   ],
   "files": [],
   "include": []
