@@ -14,7 +14,13 @@
     "task1:demo": "cd task1-algorithm && npx ts-node examples/demo.ts",
     "task1:lint": "cd task1-algorithm && eslint src tests --ext .ts",
     "task1:format": "cd task1-algorithm && prettier --write src tests",
-    "task1:clean": "rm -rf task1-algorithm/dist"
+    "task1:clean": "rm -rf task1-algorithm/dist",
+    "task2:build": "cd task2-debug && tsc",
+    "task2:test": "jest --testPathPattern=task2-debug",
+    "task2:demo": "npx ts-node task2-debug/src/example.ts",
+    "task2:demo:fixed": "npx ts-node task2-debug/src/fixed.ts",
+    "task2:demo:original": "npx ts-node task2-debug/src/original.js",
+    "task2:clean": "rm -rf task2-debug/dist"
   },
   "keywords": [
     "algorithm",
@@ -24,7 +30,10 @@
     "two-pointers",
     "typescript",
     "interview",
-    "creatordb"
+    "creatordb",
+    "debug",
+    "async",
+    "promise"
   ],
   "author": "CreatorDB Team",
   "license": "MIT",
@@ -40,21 +49,33 @@
     "ts-node": "^10.9.0",
     "typescript": "^5.0.0"
   },
+  "dependencies": {
+    "node-fetch": "^3.3.0"
+  },
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
-    "roots": ["<rootDir>/task1-algorithm/src", "<rootDir>/task1-algorithm/tests"],
+    "roots": [
+      "<rootDir>/task1-algorithm/src", 
+      "<rootDir>/task1-algorithm/tests",
+      "<rootDir>/task2-debug/src",
+      "<rootDir>/task2-debug/tests"
+    ],
     "testMatch": ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
     "collectCoverageFrom": [
       "task1-algorithm/src/**/*.ts",
-      "!task1-algorithm/src/**/*.d.ts"
+      "task2-debug/src/**/*.ts",
+      "!task1-algorithm/src/**/*.d.ts",
+      "!task2-debug/src/**/*.d.ts"
     ],
-    "coverageDirectory": "task1-algorithm/coverage",
+    "coverageDirectory": "coverage",
     "coverageReporters": ["text", "lcov", "html"]
   },
   "files": [
     "task1-algorithm/dist/**/*",
     "task1-algorithm/README.md",
+    "task2-debug/dist/**/*",
+    "task2-debug/README.md",
     "README.md"
   ]
 } 
