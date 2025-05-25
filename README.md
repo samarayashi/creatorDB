@@ -45,9 +45,3 @@ npm run task1:demo          # Run demonstration
 npm run task2:demo          # Run fixed version
 npm run task2:demo:original # Run original problematic version
 ```
-
-## 🛠️ Tech Stack
-
-- **Language:** TypeScript 5.0
-- **Testing:** Jest 29.5
-
