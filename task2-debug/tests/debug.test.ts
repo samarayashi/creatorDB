@@ -3,7 +3,7 @@
  * 測試修正版本的並行化和容錯機制
  */
 
-import { getYoutubeData, isValidYoutubePage } from '../src/fixed';
+import { getYoutubeData } from '../src/fixed';
 
 // Mock fetch 來避免實際網路請求
 global.fetch = jest.fn();

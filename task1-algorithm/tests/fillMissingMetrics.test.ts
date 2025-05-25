@@ -254,47 +254,65 @@ describe('fillMissingMetrics', () => {
     });
   });
 
-  describe('演算法選擇測試', () => {
-    test('小資料集應該選擇二分查找', () => {
-      // 對於 selectAlgorithm(5, 7):
-      // binaryComplexity = 7 * log2(5) ≈ 7 * 2.32 ≈ 16.24
-      // twoPointerComplexity = 7 + 5 = 12
-      // 12 < 16.24，所以應該選擇 twoPointers
-      expect(selectAlgorithm(5, 7)).toBe('twoPointers');
+  describe('Algorithm selection tests', () => {
+    test('small datasets should choose appropriate algorithm', () => {
+      // For selectAlgorithm(3, 7) - 3 existing records, fill to 7 days:
+      // Binary: 7 * log2(3) ≈ 7 * 1.58 ≈ 11.06
+      // Two-pointer: 7 + 3 = 10
+      // 10 < 11.06, so should choose twoPointers
+      expect(selectAlgorithm(3, 7)).toBe('twoPointers');
       
-      // 對於 selectAlgorithm(10, 7):
-      // binaryComplexity = 7 * log2(10) ≈ 7 * 3.32 ≈ 23.24
-      // twoPointerComplexity = 7 + 10 = 17
-      // 17 < 23.24，所以應該選擇 twoPointers
-      expect(selectAlgorithm(10, 7)).toBe('twoPointers');
+      // For selectAlgorithm(5, 14) - 5 existing records, fill to 14 days:
+      // Binary: 14 * log2(5) ≈ 14 * 2.32 ≈ 32.48
+      // Two-pointer: 14 + 5 = 19
+      // 19 < 32.48, so should choose twoPointers
+      expect(selectAlgorithm(5, 14)).toBe('twoPointers');
+      
+      // For selectAlgorithm(2, 30) - 2 existing records, fill to 30 days:
+      // Binary: 30 * log2(2) ≈ 30 * 1 = 30
+      // Two-pointer: 30 + 2 = 32
+      // 30 < 32, so should choose binary
+      expect(selectAlgorithm(2, 30)).toBe('binary');
     });
 
-    test('大資料集應該選擇雙指針', () => {
-      // 對於 selectAlgorithm(1000, 365):
-      // binaryComplexity = 365 * log2(1000) ≈ 365 * 9.97 ≈ 3639
-      // twoPointerComplexity = 365 + 1000 = 1365
-      // 1365 < 3639，所以應該選擇 twoPointers
-      expect(selectAlgorithm(1000, 365)).toBe('twoPointers');
+    test('larger datasets should choose appropriate algorithm', () => {
+      // For selectAlgorithm(50, 365) - 50 existing records, fill to 365 days:
+      // Binary: 365 * log2(50) ≈ 365 * 5.64 ≈ 2058.6
+      // Two-pointer: 365 + 50 = 415
+      // 415 < 2058.6, so should choose twoPointers
+      expect(selectAlgorithm(50, 365)).toBe('twoPointers');
       
-      // 對於 selectAlgorithm(10000, 30):
-      // binaryComplexity = 30 * log2(10000) ≈ 30 * 13.29 ≈ 398.7
-      // twoPointerComplexity = 30 + 10000 = 10030
-      // 398.7 < 10030，所以應該選擇 binary
-      expect(selectAlgorithm(10000, 30)).toBe('binary');
+      // For selectAlgorithm(100, 365) - 100 existing records, fill to 365 days:
+      // Binary: 365 * log2(100) ≈ 365 * 6.64 ≈ 2423.6
+      // Two-pointer: 365 + 100 = 465
+      // 465 < 2423.6, so should choose twoPointers
+      expect(selectAlgorithm(100, 365)).toBe('twoPointers');
+      
+      // For selectAlgorithm(10, 365) - 10 existing records, fill to 365 days:
+      // Binary: 365 * log2(10) ≈ 365 * 3.32 ≈ 1211.8
+      // Two-pointer: 365 + 10 = 375
+      // 375 < 1211.8, so should choose twoPointers
+      expect(selectAlgorithm(10, 365)).toBe('twoPointers');
     });
 
-    test('邊界情況的演算法選擇', () => {
-      // 對於 selectAlgorithm(1, 1):
-      // binaryComplexity = 1 * log2(1) = 1 * 0 = 0
-      // twoPointerComplexity = 1 + 1 = 2
-      // 0 < 2，所以應該選擇 binary
+    test('edge cases for algorithm selection', () => {
+      // For selectAlgorithm(1, 1) - 1 existing record, fill to 1 day:
+      // Binary: 1 * log2(1) = 1 * 0 = 0
+      // Two-pointer: 1 + 1 = 2
+      // 0 < 2, so should choose binary
       expect(selectAlgorithm(1, 1)).toBe('binary');
       
-      // 對於 selectAlgorithm(1, 1000):
-      // binaryComplexity = 1000 * log2(1) = 1000 * 0 = 0
-      // twoPointerComplexity = 1000 + 1 = 1001
-      // 0 < 1001，所以應該選擇 binary
-      expect(selectAlgorithm(1, 1000)).toBe('binary');
+      // For selectAlgorithm(1, 7) - 1 existing record, fill to 7 days:
+      // Binary: 7 * log2(1) = 7 * 0 = 0
+      // Two-pointer: 7 + 1 = 8
+      // 0 < 8, so should choose binary
+      expect(selectAlgorithm(1, 7)).toBe('binary');
+      
+      // For selectAlgorithm(1, 30) - 1 existing record, fill to 30 days:
+      // Binary: 30 * log2(1) = 30 * 0 = 0
+      // Two-pointer: 30 + 1 = 31
+      // 0 < 31, so should choose binary
+      expect(selectAlgorithm(1, 30)).toBe('binary');
     });
   });
 
