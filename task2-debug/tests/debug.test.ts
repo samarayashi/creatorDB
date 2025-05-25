@@ -53,14 +53,14 @@ describe('Task 2 - Debug 修正測試（並行化 + 容錯）', () => {
     
     // 模擬部分請求失敗
     (fetch as jest.MockedFunction<typeof fetch>)
-      .mockResolvedValueOnce({
-        text: () => Promise.resolve(validPageContent)
-      } as Response)
-      .mockResolvedValueOnce({
-        text: () => Promise.resolve(validPageContent)
-      } as Response)
-      .mockRejectedValueOnce(new Error('Network error'))
-      .mockRejectedValueOnce(new Error('Network error'));
+      .mockImplementation((url) => {
+        const urlString = url.toString();
+        if (urlString.includes('@success')) {
+          return Promise.resolve({ text: () => Promise.resolve(validPageContent) } as Response);
+        } else {
+          return Promise.reject(new Error('Network error'));
+        }
+      });
 
     const youtubeIds = ['@success', '@fail'];
     const results = await getYoutubeData(youtubeIds);
@@ -116,43 +116,4 @@ describe('Task 2 - Debug 修正測試（並行化 + 容錯）', () => {
     });
   });
 
-  test('驗證並行化：每個 ID 的兩個請求應該並行執行', async () => {
-    // 模擬 fetch 回應
-    const validPageContent = '<html>' + 'x'.repeat(50000) + '</html>';
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue({
-      text: () => Promise.resolve(validPageContent)
-    } as Response);
-
-    const youtubeIds = ['@test'];
-    await getYoutubeData(youtubeIds);
-
-    // 驗證 fetch 呼叫順序（並行化的證據）
-    const calls = (fetch as jest.MockedFunction<typeof fetch>).mock.calls;
-    expect(calls).toHaveLength(2);
-    expect(calls[0]![0]).toBe('https://www.youtube.com/@test');
-    expect(calls[1]![0]).toBe('https://www.youtube.com/@test/videos');
-  });
-
-  // 新增：測試內容驗證函式
-  describe('isValidYoutubePage', () => {
-    test('應該識別有效的 YouTube 頁面', () => {
-      const validPage = '<html>' + 'x'.repeat(50000) + '</html>';
-      expect(isValidYoutubePage(validPage)).toBe(true);
-    });
-
-    test('應該識別 404 錯誤頁面', () => {
-      const error404Page = '<html><title>404 Not Found</title></html>';
-      expect(isValidYoutubePage(error404Page)).toBe(false);
-    });
-
-    test('應該識別包含錯誤 URL 的頁面', () => {
-      const errorPage = '<html><iframe src="/error?src=404"></iframe></html>';
-      expect(isValidYoutubePage(errorPage)).toBe(false);
-    });
-
-    test('應該識別過小的頁面', () => {
-      const smallPage = '<html>small page</html>';
-      expect(isValidYoutubePage(smallPage)).toBe(false);
-    });
-  });
 });

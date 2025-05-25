@@ -18,11 +18,6 @@ function isValidYoutubePage(content: string): boolean {
     return false;
   }
   
-  // 檢查是否包含 YouTube 頁面的基本元素
-  if (content.length < 10000) { // 正常的 YouTube 頁面應該很大
-    return false;
-  }
-  
   return true;
 }
 

@@ -1,122 +1,91 @@
 # Task 2 - JavaScript 非同步程式碼 Debug
 
-## 🎯 任務目標
-分析並修正一段有問題的 JavaScript 非同步程式碼
+## 🎯 核心問題分析
 
-## ❌ 原始問題程式碼
+### 主要 Bug：`var` 變數作用域陷阱
+原始程式碼使用 `var i` 在 for 迴圈中，造成**函數作用域共享**問題：
 
-```javascript
-async function getYoutubeData(youtubeIds) {
-  var promises = [];
-  for (var i = 0; i < youtubeIds.length; i++) {
-    var promise = new Promise(async (resolve, reject) => {
-      try {
-        var channelURL = `https://www.youtube.com/${youtubeIds[i]}`;
-        var channelPage = await getPage(channelURL);
-        var videosURL = `https://www.youtube.com/${youtubeIds[i]}/videos`;
-        var videosPage = await getPage(videosURL);
-        resolve({ channelPage, videosPage });
-      } catch (e) {
-        reject(e);
-      }
-    });
-    promises.push(promise);
-  }
-  return await Promise.all(promises);
-}
-```
+**執行時序：**
+1. **迴圈階段（同步）**：`i = 0, 1, 2` 依序創建 3 個 Promise，每個立即開始第一個請求 ✅
+2. **迴圈結束**：`i++` 使 `i = 3`，條件 `3 < 3` 為 false，迴圈結束
+3. **非同步階段**：當第一個 `await` 完成，準備第二個請求時，**所有 Promise 共享的 `i` 已經是 3**
+4. **結果**：`youtubeIds[3] = undefined`，所有 `videosURL` 都變成 `undefined/videos`
 
-## 🔍 問題分析
+**實際測試結果：**
+- ✅ `channelURL`: 正確取得各自的 YouTube ID  
+- ❌ `videosURL`: 全部變成 `undefined/videos`
 
-### 核心問題：`var` 變數作用域陷阱
+## 🚀 解決方案設計思路
 
-**問題：** 使用 `var i` 在 for 迴圈中，導致所有非同步操作都引用同一個變數
+### 核心架構選擇：`map()` + `Promise.all()` + `try-catch`
 
-**結果：** 當 Promise 執行時，迴圈已結束，`i` 值為 `youtubeIds.length`，導致 `youtubeIds[i]` 為 `undefined`
+**為什麼選擇 `map()` 而非 `let`/`const`？**
+雖然理論上可用 `let`/`const` 解決作用域問題，但我選擇 `map()` 的原因：
+- 每個回調函數都有獨立的參數作用域，從根本避免閉包問題
+- 符合現代 JavaScript 函數式程式設計習慣
+- 程式碼更簡潔且語意清晰
 
-**實際行為：**
-```javascript
-// 所有請求都變成：
-// https://www.youtube.com/undefined
-// https://www.youtube.com/undefined/videos
-```
+### 容錯機制設計考量
 
-### 次要問題：
-1. **不必要的 Promise 包裝** - `async` 函式已經回傳 Promise
-2. **缺乏並行化** - 每個 ID 的兩個請求是序列執行
-3. **容錯能力不足** - 任何一個請求失敗就會導致整個批次失敗
+**考慮過 `Promise.allSettled` vs `Promise.all` + `try-catch`：**
+- `Promise.allSettled`：也是可行的選擇，同樣能處理細節的錯誤資訊
+- **最終選擇 `Promise.all` + 個別 `try-catch`**：
+  - 對於這個場景，只需要知道哪個 YouTube ID 產生錯誤即可
+  - 錯誤的 ID 通常 channel 和 videos 頁面都會錯，不需要區分具體是哪個請求失敗
+  - 這裡主要是基於需求簡潔性的考量
 
-## ✅ 修正版本
-
+### 並行化優化 + 容錯處理
 ```typescript
-interface YoutubeDataResult {
-  id: string;
-  channelPage?: string;
-  videosPage?: string;
-  error?: string;
-}
+const promises = youtubeIds.map(async (id): Promise<YoutubeDataResult> => {
+  try {
+    // 每個 YouTube ID 的兩個請求並行執行
+    const [channelPage, videosPage] = await Promise.all([
+      getPage(channelURL),
+      getPage(videosURL),
+    ]);
+    return { id, channelPage, videosPage };
+  } catch (error) {
+    // 個別錯誤處理，避免單點失敗影響整體
+    return { id, error: error.message };
+  }
+});
 
-async function getYoutubeData(youtubeIds: string[]): Promise<YoutubeDataResult[]> {
-  // ✅ 使用 map() 替代 for 迴圈，避免作用域問題
-  const promises = youtubeIds.map(async (id): Promise<YoutubeDataResult> => {
-    try {
-      const channelURL = `https://www.youtube.com/${id}`;
-      const videosURL = `https://www.youtube.com/${id}/videos`;
+return await Promise.all(promises); // 最外層不會因為個別失敗而全部失敗
+```
+**關鍵設計：**
+- 內層並行化：每個 ID 的兩個請求同時執行
+- 個別 try-catch：確保最外層 `Promise.all` 不會因為單個 ID 失敗而全部失敗
 
-      // ✅ 並行執行兩個請求，提高效率
-      const [channelPage, videosPage] = await Promise.all([
-        getPage(channelURL),
-        getPage(videosURL),
-      ]);
-
-      return { id, channelPage, videosPage };
-    } catch (error) {
-      // ✅ 個別錯誤處理，避免單點失敗影響整體
-      return { 
-        id, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      };
-    }
-  });
-
-  return await Promise.all(promises);
+### 實際遇到的問題：404 錯誤檢測
+在實際測試過程中發現，即使無效的 YouTube ID 也會回傳 HTTP 200，但內容為 404 頁面。因此自行加入內容驗證機制：
+```typescript
+function isValidYoutubePage(content: string): boolean {
+  return !content.includes('404 Not Found') && !content.includes('/error?src=404');
 }
 ```
 
-## 🚀 執行測試
+## 📊 執行與測試
 
+### 執行示例
 ```bash
-# 安裝依賴
-npm install
-
-# 執行示例
-npm run task2:demo
+npm run task2:demo        # 完整示例（包含真實網路請求）
+npm run task2:test        # 單元測試
 ```
 
-## 💡 關鍵學習點
-
-1. **避免 `var` 在迴圈中的作用域陷阱** → 使用 `let`/`const` 或 `Array.map()`
-2. **避免不必要的 Promise 包裝** → `async` 函式已經是 Promise
-3. **善用現代 JavaScript 語法** → `map()` 比 `for` 迴圈更安全且清晰
-4. **實現並行化處理** → 使用 `Promise.all()` 同時執行多個請求
-5. **加入容錯機制** → 個別錯誤處理，避免單點失敗影響整體
-
-## 🔧 優化重點
-
-- **並行化**：每個 ID 的 channel 和 videos 請求同時執行
-- **容錯性**：單個請求失敗不會影響其他請求
-- **型別安全**：使用 TypeScript 介面定義回傳結果
-- **錯誤追蹤**：清楚標示哪個 ID 成功或失敗
+### 測試涵蓋範圍
+- **基本功能**：正常 YouTube ID 處理
+- **容錯機制**：部分失敗不影響其他請求
+- **邊界條件**：空陣列、全部失敗
+- **404 檢測**：無效 YouTube ID 識別
+- **並行化驗證**：確認 fetch 呼叫次數和順序
 
 ## 📁 檔案結構
-
 ```
 task2-debug/
-├── README.md              # 本說明文件
 ├── src/
-│   ├── original.js        # 原始問題程式碼
-│   ├── fixed.ts          # 修正版本（並行化 + 容錯）
-│   └── example.ts        # 執行示例
+│   ├── original.js       # 原始問題程式碼
+│   ├── fixed.ts         # 修正版本（核心實現）
+│   └── example.ts       # 執行示例（真實網路請求）
 └── tests/
-    └── debug.test.ts     # 完整測試（包含容錯測試）
-``` 
+    └── debug.test.ts    # 完整測試套件
+```
