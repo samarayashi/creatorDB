@@ -2,33 +2,33 @@
  * CreatorDB API Quota Management System
  * TypeScript Type Definitions
  * 
- * 設計理念：
- * 1. 資料層：直接對應資料庫表格結構
- * 2. 應用層：組合查詢結果，提供業務邏輯所需的完整資料結構
- * 3. 服務層：定義操作介面和結果類型
+ * Design Philosophy:
+ * 1. Data Layer: Direct mapping to database table structures
+ * 2. Application Layer: Assembled query results providing complete data structures for business logic
+ * 3. Service Layer: Defines operation interfaces and result types
  */
 
 // =====================================================
-// 核心業務介面（作業要求）
+// Core Business Interfaces (Assignment Requirements)
 // =====================================================
 
 /**
- * 作業要求的 UserTableScheme 介面
- * 設計思路：這是應用層的資料結構，apiUsageHistory 透過關聯查詢組裝
- * 優勢：避免 users 表膨脹，保持查詢靈活性
+ * Assignment-required UserTableScheme interface
+ * Design: Application-layer data structure, apiUsageHistory assembled via relational queries
+ * Benefits: Avoids users table bloat, maintains query flexibility
  */
 export interface UserTableScheme {
   userId: string;
   prepurchasedCredit: number;
   createdAt: string;
   updatedAt: string;
-  /** 從 monthly_usage 表查詢組裝的虛擬欄位，非實際 DB 欄位 */
+  /** Virtual field assembled from monthly_usage table queries, not an actual DB field */
   apiUsageHistory: MonthlyUsageSummary[];
 }
 
 /**
- * 月度使用摘要
- * 設計思路：預計算的聚合資料，提升查詢效能
+ * Monthly usage summary
+ * Design: Pre-calculated aggregated data for improved query performance
  */
 export interface MonthlyUsageSummary {
   month: string; // '2025-01'
@@ -38,11 +38,11 @@ export interface MonthlyUsageSummary {
 }
 
 // =====================================================
-// API 端點相關定義
+// API Endpoint Related Definitions
 // =====================================================
 
 /**
- * API 端點枚舉（與作業要求完全一致）
+ * API endpoint enumeration (fully consistent with assignment requirements)
  */
 export const enum APIEndpoint {
   // creator endpoints
@@ -57,7 +57,7 @@ export const enum APIEndpoint {
 }
 
 /**
- * API 配額對應表（與作業要求一致）
+ * API quota mapping (consistent with assignment requirements)
  */
 export const apiQuotaMap: Record<APIEndpoint, number> = {
   // creator endpoints
@@ -72,12 +72,12 @@ export const apiQuotaMap: Record<APIEndpoint, number> = {
 } as const;
 
 // =====================================================
-// 資料層介面（直接對應資料庫表格）
+// Data Layer Interfaces (Direct Database Table Mapping)
 // =====================================================
 
 /**
- * Users 表對應介面
- * 設計思路：保持資料庫表結構的直接映射
+ * Users table interface
+ * Design: Direct mapping of database table structure
  */
 export interface User {
   userId: string;
@@ -87,8 +87,8 @@ export interface User {
 }
 
 /**
- * API Endpoints 表對應介面
- * 設計思路：動態配置 API 成本，支援運營調整
+ * API Endpoints table interface
+ * Design: Dynamic API cost configuration, supports operational adjustments
  */
 export interface ApiEndpoint {
   endpoint: APIEndpoint;
@@ -100,8 +100,8 @@ export interface ApiEndpoint {
 }
 
 /**
- * API Calls 表對應介面
- * 設計思路：詳細記錄每次 API 呼叫，支援稽核和分析
+ * API Calls table interface
+ * Design: Detailed record of each API call, supports auditing and analysis
  */
 export interface ApiCall {
   callId: string;
@@ -116,12 +116,12 @@ export interface ApiCall {
 }
 
 /**
- * Monthly Usage 表對應介面
- * 設計思路：預計算的月度統計，提升查詢效能
+ * Monthly Usage table interface
+ * Design: Pre-calculated monthly statistics for improved query performance
  */
 export interface MonthlyUsage {
   userId: string;
-  month: string; // '2025-01-01' (月初日期)
+  month: string; // '2025-01-01' (first day of month)
   endpoint: APIEndpoint;
   callCount: number;
   totalCost: number;
@@ -129,8 +129,8 @@ export interface MonthlyUsage {
 }
 
 /**
- * Credit Transactions 表對應介面
- * 設計思路：完整的點數異動軌跡，支援對帳和稽核
+ * Credit Transactions table interface
+ * Design: Complete credit change audit trail, supports reconciliation and auditing
  */
 export interface CreditTransaction {
   txId: string;
@@ -145,21 +145,21 @@ export interface CreditTransaction {
 }
 
 /**
- * 點數異動原因枚舉
+ * Credit transaction reason enumeration
  */
 export type CreditTransactionReason = 
-  | 'api_deduction'     // API 扣點
-  | 'manual_adjustment' // 手動調整
-  | 'refund'           // 退款
-  | 'purchase';        // 購買
+  | 'api_deduction'     // API deduction
+  | 'manual_adjustment' // Manual adjustment
+  | 'refund'           // Refund
+  | 'purchase';        // Purchase
 
 // =====================================================
-// 服務層介面（業務邏輯操作）
+// Service Layer Interfaces (Business Logic Operations)
 // =====================================================
 
 /**
- * 扣點交易結果
- * 設計思路：原子性操作的結果回饋
+ * Credit deduction result
+ * Design: Atomic operation result feedback
  */
 export interface DeductCreditResult {
   success: boolean;
@@ -169,7 +169,7 @@ export interface DeductCreditResult {
 }
 
 /**
- * 新增點數結果
+ * Add credit result
  */
 export interface AddCreditResult {
   success: boolean;
@@ -178,8 +178,8 @@ export interface AddCreditResult {
 }
 
 /**
- * API 呼叫請求參數
- * 設計思路：封裝 API 呼叫的所有必要資訊
+ * API call request parameters
+ * Design: Encapsulates all necessary information for API calls
  */
 export interface ApiCallRequest {
   userId: string;
@@ -191,7 +191,7 @@ export interface ApiCallRequest {
 }
 
 /**
- * 新增點數請求參數
+ * Add credit request parameters
  */
 export interface AddCreditRequest {
   userId: string;
@@ -200,28 +200,27 @@ export interface AddCreditRequest {
   createdBy?: string;
 }
 
+// =====================================================
+// Query and Response Interfaces
+// =====================================================
+
 /**
- * 查詢使用者使用歷史請求參數
+ * Get user usage history request parameters
  */
 export interface GetUserUsageHistoryRequest {
   userId: string;
-  limit?: number; // 預設 12 個月
+  limit?: number; // Default 12 months
 }
 
-// =====================================================
-// 應用層組合介面
-// =====================================================
-
 /**
- * 使用者詳細資訊（含使用歷史）
- * 設計思路：應用層組合查詢結果
+ * User with usage history (application layer composite)
  */
 export interface UserWithUsageHistory extends User {
   apiUsageHistory: MonthlyUsageSummary[];
 }
 
 /**
- * 使用者餘額查詢結果
+ * User balance information
  */
 export interface UserBalance {
   userId: string;
@@ -230,11 +229,11 @@ export interface UserBalance {
 }
 
 // =====================================================
-// 統計分析介面
+// Analytics and Statistics Interfaces
 // =====================================================
 
 /**
- * API 使用統計
+ * API usage statistics
  */
 export interface ApiUsageStats {
   totalCalls: number;
@@ -245,7 +244,7 @@ export interface ApiUsageStats {
 }
 
 /**
- * 月度統計摘要
+ * Monthly statistics
  */
 export interface MonthlyStats {
   month: string;
@@ -258,102 +257,3 @@ export interface MonthlyStats {
     cost: number;
   }>;
 }
-
-// =====================================================
-// 錯誤處理
-// =====================================================
-
-/**
- * API 配額系統錯誤類型
- */
-export enum QuotaErrorType {
-  INSUFFICIENT_CREDIT = 'INSUFFICIENT_CREDIT',
-  INVALID_ENDPOINT = 'INVALID_ENDPOINT',
-  USER_NOT_FOUND = 'USER_NOT_FOUND',
-  INVALID_AMOUNT = 'INVALID_AMOUNT',
-  DATABASE_ERROR = 'DATABASE_ERROR',
-}
-
-/**
- * 配額系統錯誤介面
- */
-export interface QuotaError {
-  type: QuotaErrorType;
-  message: string;
-  details?: Record<string, any>;
-}
-
-// =====================================================
-// 輔助工具類型
-// =====================================================
-
-/**
- * 分頁查詢參數
- */
-export interface PaginationParams {
-  page: number;
-  limit: number;
-  sortBy?: string;
-  sortOrder?: 'ASC' | 'DESC';
-}
-
-/**
- * 分頁查詢結果
- */
-export interface PaginatedResult<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
-/**
- * 日期範圍查詢參數
- */
-export interface DateRangeParams {
-  startDate: string;
-  endDate: string;
-}
-
-/**
- * API 呼叫查詢過濾器
- */
-export interface ApiCallFilter extends Partial<DateRangeParams> {
-  userId?: string;
-  endpoint?: APIEndpoint;
-  responseStatus?: number;
-  minCost?: number;
-  maxCost?: number;
-}
-
-/**
- * 建立使用者請求
- */
-export interface CreateUserRequest {
-  userId: string;
-  initialCredit?: number;
-}
-
-/**
- * 更新 API 端點成本請求
- */
-export interface UpdateEndpointCostRequest {
-  endpoint: APIEndpoint;
-  newCost: number;
-  updatedBy: string;
-}
-
-/**
- * 批次操作結果
- */
-export interface BatchOperationResult<T> {
-  successful: T[];
-  failed: Array<{
-    item: T;
-    error: string;
-  }>;
-  totalProcessed: number;
-  successCount: number;
-  failureCount: number;
-} 
