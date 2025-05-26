@@ -83,19 +83,19 @@ function findNearestMetricBinary(
  * 使用二分查找優化版的 fillMissingMetrics
  * 時間複雜度：O(m * log n)，其中 m 是目標天數，n 是原始資料筆數
  * @param data 已有的 Metric 陣列，升序排列
- * @param length 要生成的天數，預設 7 天
- * @returns 按升序、長度恰好為 length 的 Metric 陣列
+ * @param daysCount 要生成的天數，預設 7 天
+ * @returns 按升序、長度恰好為 daysCount 的 Metric 陣列
  */
 export function fillMissingMetricsBinary(
   data: readonly Metric[],
-  length: number = 7
+  daysCount: number = 7
 ): Metric[] {
   if (data.length === 0) {
     throw new Error("輸入資料至少需要包含一筆記錄");
   }
 
   // 1. 構造目標日期列表
-  const targetDates = generateTargetDates(length);
+  const targetDates = generateTargetDates(daysCount);
 
   // 2. 提取已有記錄的日期陣列（用於二分查找）
   const dates = data.map(m => m.date);

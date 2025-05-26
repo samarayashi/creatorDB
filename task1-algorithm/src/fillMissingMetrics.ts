@@ -56,8 +56,8 @@ export function selectAlgorithm(
  * - 雙指針：適合資料量較大的情況，時間複雜度 O(m + n)
  * 
  * @param data 已有的 Metric 陣列，必須按日期升序排列
- * @param length 要生成的天數，預設為 7 天
- * @returns 包含完整 length 天資料的 Metric 陣列，按日期升序排列
+ * @param daysCount 要生成的天數，預設為 7 天
+ * @returns 包含完整 daysCount 天資料的 Metric 陣列，按日期升序排列
  * 
  * @throws {Error} 當輸入資料為空時
  * 
@@ -74,22 +74,22 @@ export function selectAlgorithm(
  */
 export function fillMissingMetrics(
   data: readonly Metric[],
-  length: number = DEFAULT_DAYS
+  daysCount: number = DEFAULT_DAYS
 ): Metric[] {
   if (data.length === 0) {
     throw new Error("輸入資料至少需要包含一筆記錄");
   }
 
-  if (length <= 0) {
+  if (daysCount <= 0) {
     throw new Error("目標天數必須大於 0");
   }
 
   // 根據資料量動態選擇演算法
-  const algorithm = selectAlgorithm(data.length, length);
+  const algorithm = selectAlgorithm(data.length, daysCount);
   
   if (algorithm === 'binary') {
-    return fillMissingMetricsBinary(data, length);
+    return fillMissingMetricsBinary(data, daysCount);
   } else {
-    return fillMissingMetricsTwoPointers(data, length);
+    return fillMissingMetricsTwoPointers(data, daysCount);
   }
 } 

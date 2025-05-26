@@ -45,10 +45,4 @@ npm run task1:demo          # 執行示範
 npm run task2:demo:ori      # Run original problematic version
 npm run task2:demo:new      # Run fixed version
 npm run task2:test
-```
-
-## 🛠️ 技術棧
-
-- **語言：** TypeScript 5.0
-- **測試：** Jest 29.5
-
+``
