@@ -53,27 +53,27 @@ export function selectAlgorithm(
  * - Two Pointers: Suitable for larger datasets, O(m + n) time complexity
  * 
  * @param data Existing Metric array, must be sorted by date in ascending order
- * @param length Number of days to generate, defaults to 7 days
- * @returns Metric array containing complete data for the specified length of days, sorted by date ascending
+ * @param daysCount Number of days to generate, defaults to 7 days
+ * @returns Metric array containing complete data for the specified daysCount of days, sorted by date ascending
  */
 export function fillMissingMetrics(
   data: readonly Metric[],
-  length: number = DEFAULT_DAYS
+  daysCount: number = DEFAULT_DAYS
 ): Metric[] {
   if (data.length === 0) {
     throw new Error("Input data must contain at least one record");
   }
 
-  if (length <= 0) {
+  if (daysCount <= 0) {
     throw new Error("Target days must be greater than 0");
   }
 
   // Dynamically select algorithm based on data size
-  const algorithm = selectAlgorithm(data.length, length);
+  const algorithm = selectAlgorithm(data.length, daysCount);
   
   if (algorithm === 'binary') {
-    return fillMissingMetricsBinary(data, length);
+    return fillMissingMetricsBinary(data, daysCount);
   } else {
-    return fillMissingMetricsTwoPointers(data, length);
+    return fillMissingMetricsTwoPointers(data, daysCount);
   }
 } 

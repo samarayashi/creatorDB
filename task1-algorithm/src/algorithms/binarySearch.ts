@@ -82,19 +82,19 @@ function findNearestMetricBinary(
  * Binary search optimized version of fillMissingMetrics
  * Time complexity: O(m * log n), where m is target days and n is original data count
  * @param data Existing Metric array, sorted in ascending order
- * @param length Number of days to generate, defaults to 7
- * @returns Metric array in ascending order with exactly length elements
+ * @param daysCount Number of days to generate, defaults to 7
+ * @returns Metric array in ascending order with exactly daysCount elements
  */
 export function fillMissingMetricsBinary(
   data: readonly Metric[],
-  length: number = 7
+  daysCount: number = 7
 ): Metric[] {
   if (data.length === 0) {
     throw new Error("Input data must contain at least one record");
   }
 
   // 1. Generate target date list
-  const targetDates = generateTargetDates(length);
+  const targetDates = generateTargetDates(daysCount);
 
   // 2. Extract date array from existing records (for binary search)
   const dates = data.map(m => m.date);

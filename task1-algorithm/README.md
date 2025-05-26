@@ -11,6 +11,11 @@ A high-performance TypeScript algorithm library for filling missing daily metric
 - **Highly Configurable**: Supports any number of days (not limited to 7 days)
 - **Type Safe**: Complete TypeScript type definitions
 
+## 💡 Real-World Usage Recommendation
+
+**Based on actual production scenarios**, we found that the typical use case involves **filling sparse data over many days** (e.g., receiving 3 data points to fill 30 days). In such scenarios, the **Two Pointer algorithm is consistently optimal** due to its O(m + n) linear complexity.
+
+**Recommendation**: For most real-world applications, you can directly use `fillMissingMetricsTwoPointers()` without the overhead of algorithm selection logic.
 
 ## 🎯 Quick Start
 
@@ -46,6 +51,10 @@ console.log(result.length); // 7
 // Custom number of days
 const monthlyData = fillMissingMetrics(data, 30);
 console.log(monthlyData.length); // 30
+
+// Direct use of Two Pointer algorithm (recommended for production)
+import { fillMissingMetricsTwoPointers } from 'fill-missing-metrics';
+const optimizedResult = fillMissingMetricsTwoPointers(data, 30);
 ```
 
 ## 📊 Algorithm Description
@@ -64,33 +73,34 @@ The system automatically selects the optimal algorithm based on:
 - Choose two-pointer when m × log(n) > (m + n)
 - where m = target days, n = original data count
 
+**Note**: In practice, most scenarios favor the two-pointer approach due to sparse data patterns.
 
 ## Main Functions
 
-#### `fillMissingMetrics(data, length?)`
+#### `fillMissingMetrics(data, daysCount?)`
 
 Automatically selects the optimal algorithm to fill missing data.
 
 ```typescript
 function fillMissingMetrics(
   data: readonly Metric[],
-  length: number = 7
+  daysCount: number = 7
 ): Metric[]
 ```
 
 **Parameters:**
 - `data`: Existing metrics data array (must be sorted by date ascending)
-- `length`: Number of days to generate (default 7 days)
+- `daysCount`: Number of days to generate (default 7 days)
 
 **Returns:** Metrics array with complete days
 
-#### `fillMissingMetricsWithBinary(data, length?)`
+#### `fillMissingMetricsBinary(data, daysCount?)`
 
 Forces use of binary search algorithm.
 
-#### `fillMissingMetricsWithTwoPointers(data, length?)`
+#### `fillMissingMetricsTwoPointers(data, daysCount?)`
 
-Forces use of two-pointer algorithm.
+Forces use of two-pointer algorithm. **Recommended for production use**.
 
 ### Type Definitions
 
